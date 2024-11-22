@@ -2,6 +2,11 @@
 SHELL := /bin/bash
 .DEFAULT_GOAL := build
 
+.PHONY: vcs-import
+vcs-import:
+	@VCS_FILE="${VCS_FILE}"
+	vcs import < ${VCS_FILE}
+
 .PHONY: build
 build:
 	make dspace

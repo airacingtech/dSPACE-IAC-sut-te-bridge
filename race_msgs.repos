@@ -1,0 +1,9 @@
+repositories:
+    ros_ws_aux/src/external/race_msgs:
+        type: git
+        url: git@github.com:airacingtech/race_msgs.git
+        version: 2024
+    ros_ws_aux/src/external/lmpc_msgs:
+        type: git
+        url: git@github.com:airacingtech/lmpc_msgs.git
+        version: main
