@@ -45,8 +45,8 @@ namespace bridge {
     } else {
       this->pubIntervalVectorNavData = 10;
     }
-    if (std::getenv("PUB_ITV_NOVATE_DATA")){
-      this->pubIntervalNovatelData = static_cast<uint32_t>(std::stoul(std::string(std::getenv("PUB_ITV_NOVATE_DATA"))));
+    if (std::getenv("PUB_ITV_NOVATEL_DATA")){
+      this->pubIntervalNovatelData = static_cast<uint32_t>(std::stoul(std::string(std::getenv("PUB_ITV_NOVATEL_DATA"))));
     } else {
       this->pubIntervalNovatelData = 10;
     }
@@ -54,6 +54,21 @@ namespace bridge {
       this->pubIntervalFoxgloveMap = static_cast<uint32_t>(std::stoul(std::string(std::getenv("PUB_ITV_FOXGLOVE_MAP"))));
     } else {
       this->pubIntervalFoxgloveMap = 10;
+    }
+
+    if (std::getenv("PATH_LOG")){
+      this->pathTimeRecord = std::string(std::getenv("PATH_LOG"));
+    } else {
+      this->pathTimeRecord = "/root/record_log";
+    }
+    if (std::getenv("ENABLE_LOG")){
+      if (std::string(std::getenv("ENABLE_LOG")) == "true"){
+        this->enableTimeRecord = true;
+      } else {
+        this->enableTimeRecord = false;
+      }
+    } else {
+      this->enableTimeRecord = false;
     }
 
     std::cout << "Set SimManager Host Port to: 12345"<< std::endl;
@@ -118,7 +133,8 @@ namespace bridge {
       this->verctorNavAttitudeGroupPublisher_ = this->create_publisher<vectornav_msgs::msg::AttitudeGroup>("vectornav/raw/attitude", qos);
       this->verctorNavImuGroupPublisher_ = this->create_publisher<vectornav_msgs::msg::ImuGroup>("vectornav/raw/imu", qos);
       this->verctorNavInsGroupPublisher_ = this->create_publisher<vectornav_msgs::msg::InsGroup>("vectornav/raw/ins", qos);
-      this->verctorNavGpsGroupPublisher_ = this->create_publisher<vectornav_msgs::msg::GpsGroup>("vectornav/raw/gps", qos);
+      this->verctorNavGpsGroupLeftPublisher_ = this->create_publisher<vectornav_msgs::msg::GpsGroup>("vectornav/raw/gps_left", qos);
+      this->verctorNavGpsGroupRightPublisher_ = this->create_publisher<vectornav_msgs::msg::GpsGroup>("vectornav/raw/gps_right", qos);
       this->verctorNavTimeGroupPublisher_ = this->create_publisher<vectornav_msgs::msg::TimeGroup>("vectornav/raw/time", qos);
 
       this->novaTelBestPosPublisher1_ = this->create_publisher<novatel_oem7_msgs::msg::BESTPOS>("novatel_top/bestpos", qos);
@@ -143,6 +159,7 @@ namespace bridge {
       this->foxgloveScenePublisher_ = this->create_publisher<foxglove_msgs::msg::SceneUpdate>("foxglove_scene", qos);
       this->egoPositionPublisher_ = this->create_publisher<geometry_msgs::msg::TransformStamped>("ego_position", qos);
 
+      this->resetCommandPublisher_ = this->create_publisher<std_msgs::msg::Bool>("maneuver_reset", qos);
 
       this->receiveVehicleCommands_ = this->create_subscription<autonoma_msgs::msg::VehicleInputs>("vehicle_inputs", qos, std::bind(&SutTeBridgeNode::subscribeVehicleCommandsCallback, this, _1));
       this->receiveRaptorCommands_ = this->create_subscription<autonoma_msgs::msg::ToRaptor>("to_raptor", qos, std::bind(&SutTeBridgeNode::subscribeRaptorCommandsCallback, this, _1));
@@ -169,7 +186,20 @@ namespace bridge {
     {
       std::cerr << "Failed to create object for SUT-TE-Bridge node: " << e.what() << '\n';
     }
-      std::cout << "Setup done." << '\n';
+
+    if (this->enableTimeRecord)
+    {
+      this->myfile.open(std::string(this->pathTimeRecord) + "/duration_recording.csv");
+      this->myfile << "sendVehicleFeedbackToSimulation" << ","
+                   << "requestCustomData" << ","
+                   << "castCanbus_raw" << ","
+                   << "publishSimulationState" << ","
+                   << "VESICallBackInterval" << "\n";
+      this->myfile.close();
+      std::cout << "Log created under path: " << std::string(this->pathTimeRecord) << std::endl;
+    }
+
+    std::cout << "Setup done." << '\n';
   }
 
   void SutTeBridgeNode::initializeFeedback()
@@ -227,14 +257,51 @@ namespace bridge {
       std::cout << "vesiCallback" << '\n';
     }
 
+    if (this->enableTimeRecord)
+    {
+      this->timeEndVESICallBackNanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+      this->measured_vesi_times.push_back((int64_t(this->timeEndVESICallBackNanosec) - int64_t(this->timeStartVESICallBackNanosec)) / 1000000.0);
+
+      if (this->timeStartNanosec != 0 && this->timeStartVESICallBackNanosec != 0 && this->measured_vesi_times.size() == 5)
+      {
+        // write measurments to csv log file
+        this->myfile.open(std::string(this->pathTimeRecord) + "/duration_recording.csv", std::ios_base::app);
+        this->myfile << std::to_string(measured_vesi_times[0]) << ","
+                     << std::to_string(measured_vesi_times[1]) << ","
+                     << std::to_string(measured_vesi_times[2]) << ","
+                     << std::to_string(measured_vesi_times[3]) << ","
+                     << std::to_string(measured_vesi_times[4]) << "\n";
+        this->myfile.close();
+      }
+
+      this->measured_vesi_times.clear();
+      this->timeStartVESICallBackNanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+    }
+
     try
     {
       std::vector<uint8_t> canbus_raw;
 
       if (this->maneuverStarted == true)
       {
+        if (this->enableTimeRecord){
+          this->timeStartNanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+        }
         SutTeBridgeNode::sendVehicleFeedbackToSimulation();
-          this->api.requestCustomData(&canbus_raw);
+        if (this->enableTimeRecord){
+          this->timeEndNanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+          this->measured_vesi_times.push_back((int64_t(this->timeEndNanosec) - int64_t(this->timeStartNanosec)) / 1000000.0);
+        }
+
+        if (this->enableTimeRecord){
+          this->timeStartNanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+        }
+        this->api.requestCustomData(&canbus_raw);
+        if (this->enableTimeRecord){
+          this->timeEndNanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+          this->measured_vesi_times.push_back((int64_t(this->timeEndNanosec) - int64_t(this->timeStartNanosec)) / 1000000.0);
+        }
+
         if(this->simModeEnabled)
         {
           this->simTotalMsec += 1;
@@ -251,6 +318,9 @@ namespace bridge {
         this->api.requestCustomData(&canbus_raw);
       }
 
+      if (this->enableTimeRecord){
+        this->timeStartNanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+      }
       if (canbus_raw.empty()==false)
       {
         this->canBus = reinterpret_cast<ASMBus*>(canbus_raw.data());
@@ -262,17 +332,32 @@ namespace bridge {
         {
           std::cout << "Maneuver stopped. System will be reset" << std::endl;
           initializeFeedback();
+          std_msgs::msg::Bool resetMsg;
+          resetMsg.data = true;
+          this->resetCommandPublisher_->publish(resetMsg);
         }
         this->vesiDataAvailabe = true;
       }
       else {std::cout << "No Custom Data available" << std::endl;}
+      if (this->enableTimeRecord){
+        this->timeEndNanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+        this->measured_vesi_times.push_back((int64_t(this->timeEndNanosec) - int64_t(this->timeStartNanosec)) / 1000000.0);
+      }
+
     }
     catch(const std::exception& e)
     {
       std::cerr << "Failed to request data from ASM: " << e.what() << '\n';
     }
 
+    if (this->enableTimeRecord){
+      this->timeStartNanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+    }
     SutTeBridgeNode::publishSimulationState();
+    if (this->enableTimeRecord){
+      this->timeEndNanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+      this->measured_vesi_times.push_back((int64_t(this->timeEndNanosec) - int64_t(this->timeStartNanosec)) / 1000000.0);
+    }
   }
 
   void SutTeBridgeNode::publishSimulationState()
@@ -350,7 +435,7 @@ namespace bridge {
     else
     {
       foxgloveMap.header.stamp.sec = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()).time_since_epoch().count();
-      foxgloveMap.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+      foxgloveMap.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (foxgloveMap.header.stamp.sec*1000000000);
     }
   
     this->foxgloveMapPublisher_->publish(foxgloveMap);
@@ -378,7 +463,7 @@ namespace bridge {
     else
     {
       egoPosition.header.stamp.sec = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()).time_since_epoch().count();
-      egoPosition.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+      egoPosition.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (egoPosition.header.stamp.sec*1000000000);
     }
 
     egoPosition.header.frame_id = "world";
@@ -414,7 +499,7 @@ namespace bridge {
     else
     {
       fellows.timestamp.sec = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()).time_since_epoch().count();
-      fellows.timestamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+      fellows.timestamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (fellows.timestamp.sec*1000000000);
     }
 
     fellows.frame_id = "world";
@@ -628,7 +713,7 @@ namespace bridge {
     else
     {
       raceControlData.header.stamp.sec = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()).time_since_epoch().count();
-      raceControlData.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+      raceControlData.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (raceControlData.header.stamp.sec*1000000000);
     }
 
     if (this->useCustomRaceControl == false)
@@ -714,7 +799,7 @@ namespace bridge {
     else
     {
       vehicleData.header.stamp.sec = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()).time_since_epoch().count();
-      vehicleData.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+      vehicleData.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (vehicleData.header.stamp.sec*1000000000);
     }
 
     this->vehicleDataPublisher_->publish(vehicleData);
@@ -767,7 +852,7 @@ namespace bridge {
     else
     {
       powertrainData.header.stamp.sec = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()).time_since_epoch().count();
-      powertrainData.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+      powertrainData.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (powertrainData.header.stamp.sec*1000000000);
     }
 
     this->powertrainDataPublisher_->publish(powertrainData);
@@ -790,7 +875,7 @@ namespace bridge {
     else
     {
       groundTruthArray.header.stamp.sec = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()).time_since_epoch().count();
-      groundTruthArray.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+      groundTruthArray.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (groundTruthArray.header.stamp.sec*1000000000);
     }
 
     for (size_t vehicleID = 0; vehicleID < this->canBus->sim_interface_var.vehicle_sensors_var.fellow_count; vehicleID++)
@@ -847,7 +932,7 @@ namespace bridge {
     else
     {
       attitudeGroup.header.stamp.sec = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()).time_since_epoch().count();
-      attitudeGroup.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+      attitudeGroup.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (attitudeGroup.header.stamp.sec*1000000000);
     }
 
     attitudeGroup.vpestatus.attitude_quality = this->canBus->sim_interface_var.vector_nav_vn1_var.attitude_group_var.vpestatus_var.attitude_quality;
@@ -912,7 +997,7 @@ namespace bridge {
     else
     {
       commonGroup.header.stamp.sec = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()).time_since_epoch().count();
-      commonGroup.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+      commonGroup.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (commonGroup.header.stamp.sec*1000000000);
     }
 
     commonGroup.timestartup = this->canBus->sim_interface_var.vector_nav_vn1_var.common_group_var.timestartup;
@@ -992,7 +1077,7 @@ namespace bridge {
     else
     {
       imuGroup.header.stamp.sec = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()).time_since_epoch().count();
-      imuGroup.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+      imuGroup.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (imuGroup.header.stamp.sec*1000000000);
     }
 
     imuGroup.imustatus = this->canBus->sim_interface_var.vector_nav_vn1_var.imu_group_var.imustatus;
@@ -1041,68 +1126,88 @@ namespace bridge {
 
     this->verctorNavImuGroupPublisher_->publish(imuGroup);
     
-    // Header
-    gpsGroup.header.frame_id = "world";
 
-    if(this->simModeEnabled)
+    for(int i=0;i<2;i++)
     {
-      gpsGroup.header.stamp.sec = this->sec;
-      gpsGroup.header.stamp.nanosec = this->nsec;
+      gps_group currentGPS;
+      if (i == 0)
+      {
+        currentGPS = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group1_var;
+        this->verctorNavGpsGroupPublisher = this->verctorNavGpsGroupRightPublisher_;
+        }
+      else if (i == 1)
+      {
+        currentGPS = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group2_var;
+        this->verctorNavGpsGroupPublisher = this->verctorNavGpsGroupLeftPublisher_;
+      }
+      else
+      {
+        std::cerr << "Only two Vectornav GPS antennas are supported.\n";
+      }
+      
+      // Header
+      gpsGroup.header.frame_id = "world";
+
+      if(this->simModeEnabled)
+      {
+        gpsGroup.header.stamp.sec = this->sec;
+        gpsGroup.header.stamp.nanosec = this->nsec;
+      }
+      else
+      {
+        gpsGroup.header.stamp.sec = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+        gpsGroup.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (gpsGroup.header.stamp.sec*1000000000);
+      }
+
+
+      gpsGroup.utc.year = currentGPS.utc_var.year;
+      gpsGroup.utc.month = currentGPS.utc_var.month;
+      gpsGroup.utc.day = currentGPS.utc_var.day;
+      gpsGroup.utc.hour = currentGPS.utc_var.hour;
+      gpsGroup.utc.min = currentGPS.utc_var.min;
+      gpsGroup.utc.sec = currentGPS.utc_var.sec;
+      gpsGroup.utc.ms = currentGPS.utc_var.ms;
+
+      gpsGroup.tow = currentGPS.tow;
+      gpsGroup.week = currentGPS.week;
+      gpsGroup.numsats = currentGPS.numsats;
+      gpsGroup.fix = currentGPS.fix;
+
+      gpsGroup.poslla.x = currentGPS.poslla_var.x;
+      gpsGroup.poslla.y = currentGPS.poslla_var.y;
+      gpsGroup.poslla.z = currentGPS.poslla_var.z;
+
+      gpsGroup.posecef.x = currentGPS.posecef_var.x;
+      gpsGroup.posecef.y = currentGPS.posecef_var.y;
+      gpsGroup.posecef.z = currentGPS.posecef_var.z;
+
+      gpsGroup.velned.x = currentGPS.velned_var.x;
+      gpsGroup.velned.y = currentGPS.velned_var.y;
+      gpsGroup.velned.z = currentGPS.velned_var.z;
+
+      gpsGroup.velecef.x = currentGPS.velecef_var.x;
+      gpsGroup.velecef.y = currentGPS.velecef_var.y;
+      gpsGroup.velecef.z = currentGPS.velecef_var.z;
+
+      gpsGroup.posu.x = currentGPS.posu_var.x;
+      gpsGroup.posu.y = currentGPS.posu_var.y;
+      gpsGroup.posu.z = currentGPS.posu_var.z;
+
+      gpsGroup.velu = currentGPS.velu;
+      gpsGroup.timeu = currentGPS.timeu;
+      gpsGroup.timeinfo_status = currentGPS.timeinfo_status;
+      gpsGroup.timeinfo_leapseconds = currentGPS.timeinfo_leapseconds;
+
+      gpsGroup.dop.g = currentGPS.dop_var.g;
+      gpsGroup.dop.p = currentGPS.dop_var.p;
+      gpsGroup.dop.t = currentGPS.dop_var.t;
+      gpsGroup.dop.v = currentGPS.dop_var.v;
+      gpsGroup.dop.h = currentGPS.dop_var.h;
+      gpsGroup.dop.n = currentGPS.dop_var.n;
+      gpsGroup.dop.e = currentGPS.dop_var.e;
+
+      this->verctorNavGpsGroupPublisher->publish(gpsGroup);
     }
-    else
-    {
-      gpsGroup.header.stamp.sec = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()).time_since_epoch().count();
-      gpsGroup.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
-    }
-
-
-    gpsGroup.utc.year = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.utc_var.year;
-    gpsGroup.utc.month = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.utc_var.month;
-    gpsGroup.utc.day = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.utc_var.day;
-    gpsGroup.utc.hour = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.utc_var.hour;
-    gpsGroup.utc.min = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.utc_var.min;
-    gpsGroup.utc.sec = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.utc_var.sec;
-    gpsGroup.utc.ms = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.utc_var.ms;
-
-    gpsGroup.tow = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.tow;
-    gpsGroup.week = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.week;
-    gpsGroup.numsats = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.numsats;
-    gpsGroup.fix = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.fix;
-
-    gpsGroup.poslla.x = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.poslla_var.x;
-    gpsGroup.poslla.y = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.poslla_var.y;
-    gpsGroup.poslla.z = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.poslla_var.z;
-
-    gpsGroup.posecef.x = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.posecef_var.x;
-    gpsGroup.posecef.y = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.posecef_var.y;
-    gpsGroup.posecef.z = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.posecef_var.z;
-
-    gpsGroup.velned.x = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.velned_var.x;
-    gpsGroup.velned.y = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.velned_var.y;
-    gpsGroup.velned.z = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.velned_var.z;
-
-    gpsGroup.velecef.x = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.velecef_var.x;
-    gpsGroup.velecef.y = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.velecef_var.y;
-    gpsGroup.velecef.z = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.velecef_var.z;
-
-    gpsGroup.posu.x = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.posu_var.x;
-    gpsGroup.posu.y = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.posu_var.y;
-    gpsGroup.posu.z = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.posu_var.z;
-
-    gpsGroup.velu = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.velu;
-    gpsGroup.timeu = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.timeu;
-    gpsGroup.timeinfo_status = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.timeinfo_status;
-    gpsGroup.timeinfo_leapseconds = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.timeinfo_leapseconds;
-
-    gpsGroup.dop.g = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.dop_var.g;
-    gpsGroup.dop.p = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.dop_var.p;
-    gpsGroup.dop.t = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.dop_var.t;
-    gpsGroup.dop.v = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.dop_var.v;
-    gpsGroup.dop.h = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.dop_var.h;
-    gpsGroup.dop.n = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.dop_var.n;
-    gpsGroup.dop.e = this->canBus->sim_interface_var.vector_nav_vn1_var.gps_group_var.dop_var.e;
-
-    this->verctorNavGpsGroupPublisher_->publish(gpsGroup);
     
     // Header
     insGroup.header.frame_id = "world";
@@ -1115,51 +1220,51 @@ namespace bridge {
     else
     {
       insGroup.header.stamp.sec = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()).time_since_epoch().count();
-      insGroup.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+      insGroup.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (insGroup.header.stamp.sec*1000000000);
     }
 
-    insGroup.insstatus.gps_fix = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.insstatus_var.gps_fix;
-    insGroup.insstatus.time_error = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.insstatus_var.time_error;
-    insGroup.insstatus.imu_error = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.insstatus_var.imu_error;
-    insGroup.insstatus.mag_pres_error = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.insstatus_var.mag_pres_error;
-    insGroup.insstatus.gps_error = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.insstatus_var.gps_error;
-    insGroup.insstatus.gps_heading_ins = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.insstatus_var.gps_heading_ins;
-    insGroup.insstatus.gps_compass = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.insstatus_var.gps_compass;
+    insGroup.insstatus.gps_fix = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.insstatus_var.gps_fix;
+    insGroup.insstatus.time_error = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.insstatus_var.time_error;
+    insGroup.insstatus.imu_error = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.insstatus_var.imu_error;
+    insGroup.insstatus.mag_pres_error = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.insstatus_var.mag_pres_error;
+    insGroup.insstatus.gps_error = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.insstatus_var.gps_error;
+    insGroup.insstatus.gps_heading_ins = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.insstatus_var.gps_heading_ins;
+    insGroup.insstatus.gps_compass = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.insstatus_var.gps_compass;
 
-    insGroup.poslla.x = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.poslla_var.x;
-    insGroup.poslla.y = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.poslla_var.y;
-    insGroup.poslla.z = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.poslla_var.z;
+    insGroup.poslla.x = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.poslla_var.x;
+    insGroup.poslla.y = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.poslla_var.y;
+    insGroup.poslla.z = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.poslla_var.z;
 
-    insGroup.posecef.x = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.posecef_var.x;
-    insGroup.posecef.y = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.posecef_var.y;
-    insGroup.posecef.z = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.posecef_var.z;
+    insGroup.posecef.x = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.posecef_var.x;
+    insGroup.posecef.y = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.posecef_var.y;
+    insGroup.posecef.z = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.posecef_var.z;
 
-    insGroup.velbody.x = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.velbody_var.x;
-    insGroup.velbody.y = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.velbody_var.y;
-    insGroup.velbody.z = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.velbody_var.z;
+    insGroup.velbody.x = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.velbody_var.x;
+    insGroup.velbody.y = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.velbody_var.y;
+    insGroup.velbody.z = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.velbody_var.z;
 
-    insGroup.velned.x = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.velned_var.x;
-    insGroup.velned.y = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.velned_var.y;
-    insGroup.velned.z = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.velned_var.z;
+    insGroup.velned.x = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.velned_var.x;
+    insGroup.velned.y = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.velned_var.y;
+    insGroup.velned.z = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.velned_var.z;
 
-    insGroup.velecef.x = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.velecef_var.x;
-    insGroup.velecef.y = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.velecef_var.y;
-    insGroup.velecef.z = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.velecef_var.z;
+    insGroup.velecef.x = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.velecef_var.x;
+    insGroup.velecef.y = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.velecef_var.y;
+    insGroup.velecef.z = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.velecef_var.z;
 
-    insGroup.magecef.x = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.magecef_var.x;
-    insGroup.magecef.y = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.magecef_var.y;
-    insGroup.magecef.z = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.magecef_var.z;
+    insGroup.magecef.x = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.magecef_var.x;
+    insGroup.magecef.y = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.magecef_var.y;
+    insGroup.magecef.z = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.magecef_var.z;
 
-    insGroup.accelecef.x = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.accelecef_var.x;
-    insGroup.accelecef.y = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.accelecef_var.y;
-    insGroup.accelecef.z = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.accelecef_var.z;
+    insGroup.accelecef.x = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.accelecef_var.x;
+    insGroup.accelecef.y = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.accelecef_var.y;
+    insGroup.accelecef.z = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.accelecef_var.z;
 
-    insGroup.linearaccelecef.x = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.linearaccelecef_var.x;
-    insGroup.linearaccelecef.y = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.linearaccelecef_var.y;
-    insGroup.linearaccelecef.z = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.linearaccelecef_var.z;
+    insGroup.linearaccelecef.x = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.linearaccelecef_var.x;
+    insGroup.linearaccelecef.y = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.linearaccelecef_var.y;
+    insGroup.linearaccelecef.z = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.linearaccelecef_var.z;
 
-    insGroup.posu = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.posu_var;
-    insGroup.velu = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group.velu;
+    insGroup.posu = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.posu_var;
+    insGroup.velu = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.velu;
 
     this->verctorNavInsGroupPublisher_->publish(insGroup);
     
@@ -1174,7 +1279,7 @@ namespace bridge {
     else
     {
       timeGroup.header.stamp.sec = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()).time_since_epoch().count();
-      timeGroup.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+      timeGroup.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (timeGroup.header.stamp.sec*1000000000);
     }
 
     timeGroup.timestartup = this->canBus->sim_interface_var.vector_nav_vn1_var.time_group_var.timestartup;
@@ -1252,9 +1357,9 @@ namespace bridge {
     bestPos.nov_header.gps_week_milliseconds = currentNovatel.best_pos_var.nov_header_var.gps_week_milliseconds;
     bestPos.nov_header.idle_time = currentNovatel.best_pos_var.nov_header_var.idle_time;
 
-    bestPos.sol_status.status = currentNovatel.best_pos_var.sol_status_var.status_var;
+    bestPos.sol_status.status = currentNovatel.best_pos_var.sol_status;
 
-    bestPos.pos_type.type = currentNovatel.best_pos_var.pos_type_var.type;
+    bestPos.pos_type.type = currentNovatel.best_pos_var.pos_type;
     
     bestPos.lat = currentNovatel.best_pos_var.lat;
     bestPos.lon = currentNovatel.best_pos_var.lon;
@@ -1278,7 +1383,7 @@ namespace bridge {
     bestPos.num_sol_multi_svs = currentNovatel.best_pos_var.num_sol_multi_svs;
     bestPos.reserved = currentNovatel.best_pos_var.reserved;
 
-    bestPos.ext_sol_stat.status = currentNovatel.best_pos_var.ext_sol_stat_var.status_var;
+    bestPos.ext_sol_stat.status = currentNovatel.best_pos_var.ext_sol_stat;
 
     bestPos.galileo_beidou_sig_mask = currentNovatel.best_pos_var.galileo_beidou_sig_mask;
     bestPos.gps_glonass_sig_mask = currentNovatel.best_pos_var.gps_glonass_sig_mask;
@@ -1294,7 +1399,7 @@ namespace bridge {
     else
     {
       bestPos.header.stamp.sec = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()).time_since_epoch().count();
-      bestPos.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+      bestPos.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (bestPos.header.stamp.sec*1000000000);
     }
 
     this->novaTelBestPosPublisher->publish(bestPos);
@@ -1312,9 +1417,9 @@ namespace bridge {
     bestVel.nov_header.gps_week_milliseconds = currentNovatel.best_vel_var.nov_header_var.gps_week_milliseconds;
     bestVel.nov_header.idle_time = currentNovatel.best_vel_var.nov_header_var.idle_time;
 
-    bestVel.sol_status.status = currentNovatel.best_vel_var.sol_status_var.status_var;
+    bestVel.sol_status.status = currentNovatel.best_vel_var.sol_status;
 
-    bestVel.vel_type.type = currentNovatel.best_vel_var.vel_type_var.type;
+    bestVel.vel_type.type = currentNovatel.best_vel_var.vel_type;
     
     bestVel.latency = currentNovatel.best_vel_var.latency;
     bestVel.diff_age = currentNovatel.best_vel_var.diff_age;
@@ -1334,7 +1439,7 @@ namespace bridge {
     else
     {
       bestVel.header.stamp.sec = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()).time_since_epoch().count();
-      bestVel.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+      bestVel.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (bestVel.header.stamp.sec*1000000000);
     }
 
     this->novaTelBestVelPublisher->publish(bestVel);
@@ -1375,7 +1480,7 @@ namespace bridge {
     else
     {
       inspva.header.stamp.sec = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()).time_since_epoch().count();
-      inspva.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+      inspva.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (inspva.header.stamp.sec*1000000000);
     }
 
     this->novaTelInspvaPublisher->publish(inspva);
@@ -1392,9 +1497,9 @@ namespace bridge {
     heading2.nov_header.gps_week_milliseconds = currentNovatel.heading_2_var.nov_header_var.gps_week_milliseconds;
     heading2.nov_header.idle_time = currentNovatel.heading_2_var.nov_header_var.idle_time;
 
-    heading2.sol_status.status = currentNovatel.heading_2_var.sol_status_var.status_var;
+    heading2.sol_status.status = currentNovatel.heading_2_var.sol_status;
 
-    heading2.pos_type.type = currentNovatel.heading_2_var.pos_type_var.type;
+    heading2.pos_type.type = currentNovatel.heading_2_var.pos_type;
 
     heading2.length = currentNovatel.heading_2_var.length;
     heading2.heading = currentNovatel.heading_2_var.heading;
@@ -1414,8 +1519,8 @@ namespace bridge {
     heading2.num_sv_in_sol = currentNovatel.heading_2_var.num_sv_in_sol;
     heading2.num_sv_obs = currentNovatel.heading_2_var.num_sv_obs;
     heading2.num_sv_multi = currentNovatel.heading_2_var.num_sv_multi;
-    heading2.sol_source.source = currentNovatel.heading_2_var.sol_source_var.source;
-    heading2.ext_sol_status.status = currentNovatel.heading_2_var.ext_sol_status_var.status_var;
+    heading2.sol_source.source = currentNovatel.heading_2_var.sol_source;
+    heading2.ext_sol_status.status = currentNovatel.heading_2_var.ext_sol_status;
     heading2.galileo_beidou_sig_mask = currentNovatel.heading_2_var.galileo_beidou_sig_mask;
     heading2.gps_glonass_sig_mask = currentNovatel.heading_2_var.gps_glonass_sig_mask;
     
@@ -1430,7 +1535,7 @@ namespace bridge {
     else
     {
       heading2.header.stamp.sec = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()).time_since_epoch().count();
-      heading2.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+      heading2.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (heading2.header.stamp.sec*1000000000);
     }
 
     this->novaTelHeading2Publisher->publish(heading2);
@@ -1470,7 +1575,7 @@ namespace bridge {
     else
     {
       rawImu.header.stamp.sec = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()).time_since_epoch().count();
-      rawImu.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+      rawImu.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (rawImu.header.stamp.sec*1000000000);
     }
 
     this->novaTelRawImuPublisher->publish(rawImu);
@@ -1505,7 +1610,7 @@ namespace bridge {
     else
     {
       rawImuX.header.stamp.sec = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()).time_since_epoch().count();
-      rawImuX.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+      rawImuX.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (rawImuX.header.stamp.sec*1000000000);
     }
 
     this->novaTelRawImuXPublisher->publish(rawImuX);

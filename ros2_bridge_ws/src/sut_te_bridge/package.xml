@@ -3,7 +3,7 @@
 <package format="3">
   <name>sut_te_bridge</name>
   <version>0.1.0</version>
-  <description>This package translates the V-ESI messages into ROS2 messages</description>
+  <description>This package exchanges signals between ASM and ROS. Therefor V-ESI messages are translated into ROS2 messages and vice versa.</description>
   <maintainer email="cgiest@dspace.de">root</maintainer>
   <license>TODO: License declaration</license>
 

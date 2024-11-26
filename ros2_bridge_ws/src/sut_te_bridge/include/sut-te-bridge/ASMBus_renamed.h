@@ -3,7 +3,7 @@
 #include "rtwtypes.h"
 #include "ASMBus_renamed.h"
 #include "multiword_types.h"
-
+#pragma pack(push, 1) 
 typedef struct 
 {
   real_T angle_Alpha_FL_Wheel_deg;
@@ -2041,132 +2041,6 @@ typedef struct
 } nov_header;
 typedef struct 
 {
-  uint32_T sOL_COMPUTED;
-  uint32_T iNSUFFICIENT_OBS;
-  uint32_T nO_CONVERGECE;
-  uint32_T sINGULARITY;
-  uint32_T cOV_TRACE;
-  uint32_T tEST_DIST;
-  uint32_T cOLD_START;
-  uint32_T v_H_LIMIT;
-  uint32_T vARIANCE;
-  uint32_T rESIDUALS;
-  uint32_T iNTEGRITY_WARNING;
-  uint32_T pENDING;
-  uint32_T iNVALID_FIX;
-  uint32_T uNAUTHORIZED;
-  uint32_T iNVALID_RATE;
-  uint32_T status_var;
-} sol_status;
-typedef struct 
-{
-  uint32_T nONE;
-  uint32_T fIXEDPOS;
-  uint32_T fIXEDHEIGHT;
-  uint32_T dOPPLER_VELOCITY;
-  uint32_T sINGLE;
-  uint32_T pSRDIFF;
-  uint32_T wAAS;
-  uint32_T pROPAGATED;
-  uint32_T l1_FLOAT;
-  uint32_T nARROW_FLOAT;
-  uint32_T l1_INT;
-  uint32_T wIDE_INT;
-  uint32_T nARROW_INT;
-  uint32_T rTK_DIRECT_INS;
-  uint32_T iNS_SBAS;
-  uint32_T iNS_PSRSP;
-  uint32_T iNS_PSRDIFF;
-  uint32_T iNS_RTKFLOAT;
-  uint32_T iNS_RTKFIXED;
-  uint32_T pPP_CONVERGING;
-  uint32_T pPP;
-  uint32_T oPERATIONAL;
-  uint32_T wARNING;
-  uint32_T oUT_OF_BOUNDS;
-  uint32_T iNS_PPP_CONVERGING;
-  uint32_T iNS_PPP;
-  uint32_T pPP_BASIC_CONVERGING;
-  uint32_T pPP_BASIC;
-  uint32_T iNS_PPP_BASIC_CONVERGING;
-  uint32_T iNS_PPP_BASIC;
-  uint32_T type;
-} pos_type;
-typedef struct 
-{
-  uint8_T rTK_SOLUTION_VERIFIED;
-  uint8_T pDP_SOLUTION_IS_GLIDE;
-  uint8_T kLOBUCHAR_BROADCAST;
-  uint8_T sBAS_BROADCAST;
-  uint8_T mULTI_FREQUENCY_COMPUTED;
-  uint8_T pSRDIFF_CORRECTION;
-  uint8_T nOVATEL_BLENDED_IONO_VALUE;
-  uint8_T rTK_ASSIST_ACTIVE;
-  uint8_T aNTENNA_INFORMATION_IS_MISSING;
-  uint8_T rESERVED;
-  uint8_T pOSITION_INCLUDES_TERRAIN_COMPENSATION_CORRECTIONS;
-  uint8_T status_var;
-} ext_sol_stat;
-typedef struct 
-{
-  uint32_T nONE;
-  uint32_T fIXEDPOS;
-  uint32_T fIXEDHEIGHT;
-  uint32_T dOPPLER_VELOCITY;
-  uint32_T sINGLE;
-  uint32_T pSRDIFF;
-  uint32_T wAAS;
-  uint32_T pROPAGATED;
-  uint32_T l1_FLOAT;
-  uint32_T nARROW_FLOAT;
-  uint32_T l1_INT;
-  uint32_T wIDE_INT;
-  uint32_T nARROW_INT;
-  uint32_T rTK_DIRECT_INS;
-  uint32_T iNS_SBAS;
-  uint32_T iNS_PSRSP;
-  uint32_T iNS_PSRDIFF;
-  uint32_T iNS_RTKFLOAT;
-  uint32_T iNS_RTKFIXED;
-  uint32_T pPP_CONVERGING;
-  uint32_T pPP;
-  uint32_T oPERATIONAL;
-  uint32_T wARNING;
-  uint32_T oUT_OF_BOUNDS;
-  uint32_T iNS_PPP_CONVERGING;
-  uint32_T iNS_PPP;
-  uint32_T pPP_BASIC_CONVERGING;
-  uint32_T pPP_BASIC;
-  uint32_T iNS_PPP_BASIC_CONVERGING;
-  uint32_T iNS_PPP_BASIC;
-  uint32_T type;
-} vel_type;
-typedef struct 
-{
-  uint8_T rESERVED1;
-  uint8_T sOURCE_ANTENNA_MASK;
-  uint8_T pRIMARY_ANTENNA;
-  uint8_T sECONDARY_ANTENNA;
-  uint8_T rESERVED2;
-  uint8_T source;
-} sol_source;
-typedef struct 
-{
-  uint8_T rTK_SOLUTION_VERIFIED;
-  uint8_T pDP_SOLUTION_IS_GLIDE;
-  uint8_T kLOBUCHAR_BROADCAST;
-  uint8_T sBAS_BROADCAST;
-  uint8_T mULTI_FREQUENCY_COMPUTED;
-  uint8_T pSRDIFF_CORRECTION;
-  uint8_T nOVATEL_BLENDED_IONO_VALUE;
-  uint8_T rTK_ASSIST_ACTIVE;
-  uint8_T aNTENNA_INFORMATION_IS_MISSING;
-  uint8_T rESERVED;
-  uint8_T pOSITION_INCLUDES_TERRAIN_COMPENSATION_CORRECTIONS;
-  uint8_T status_var;
-} ext_sol_status;
-typedef struct 
-{
   real_T x;
   real_T y;
   real_T z;
@@ -2454,7 +2328,7 @@ typedef struct
   linearaccelecef linearaccelecef_var;
   real32_T posu_var;
   real32_T velu;
-} ins_group_var;
+} ins_group;
 typedef struct 
 {
   uint64_T timestartup;
@@ -2471,8 +2345,8 @@ typedef struct
 typedef struct 
 {
   nov_header nov_header_var;
-  sol_status sol_status_var;
-  pos_type pos_type_var;
+  uint32_T sol_status;
+  uint32_T pos_type;
   real_T lat;
   real_T lon;
   real_T hgt;
@@ -2489,15 +2363,15 @@ typedef struct
   uint8_T num_sol_l1_svs;
   uint8_T num_sol_multi_svs;
   uint8_T reserved;
-  ext_sol_stat ext_sol_stat_var;
+  uint8_T ext_sol_stat;
   uint8_T galileo_beidou_sig_mask;
   uint8_T gps_glonass_sig_mask;
 } best_pos;
 typedef struct 
 {
   nov_header nov_header_var;
-  sol_status sol_status_var;
-  vel_type vel_type_var;
+  uint32_T sol_status;
+  uint32_T vel_type;
   real32_T latency;
   real32_T diff_age;
   real_T hor_speed;
@@ -2508,8 +2382,8 @@ typedef struct
 typedef struct 
 {
   nov_header nov_header_var;
-  sol_status sol_status_var;
-  pos_type pos_type_var;
+  uint32_T sol_status;
+  uint32_T pos_type;
   real32_T length;
   real_T heading;
   real_T pitch;
@@ -2522,8 +2396,8 @@ typedef struct
   uint8_T num_sv_in_sol;
   uint8_T num_sv_obs;
   uint8_T num_sv_multi;
-  sol_source sol_source_var;
-  ext_sol_status ext_sol_status_var;
+  uint8_T sol_source;
+  uint8_T ext_sol_status;
   uint8_T galileo_beidou_sig_mask;
   uint8_T gps_glonass_sig_mask;
 } heading_2;
@@ -2605,18 +2479,11 @@ typedef struct
   attitude_group attitude_group_var;
   common_group common_group_var;
   imu_group imu_group_var;
-  gps_group gps_group_var;
-  ins_group_var ins_group;
+  gps_group gps_group1_var;
+  gps_group gps_group2_var;
+  ins_group ins_group_var;
   time_group time_group_var;
 } vector_nav_vn1;
-typedef struct 
-{
-  best_pos best_pos_var;
-  best_vel best_vel_var;
-  heading_2 heading_2_var;
-  raw_imu raw_imu_var;
-  inspava inspava_var;
-} nova_tel_pwr_pak1;
 typedef struct 
 {
   best_pos best_pos_var;
@@ -2647,4 +2514,5 @@ typedef struct
   sim_interface sim_interface_var;
 } ASMBus;
 
+#pragma pack(pop)
 #endif                                 /* RTW_HEADER_ASMBus_h_ */
