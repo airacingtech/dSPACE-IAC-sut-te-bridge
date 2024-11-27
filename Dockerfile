@@ -6,16 +6,22 @@ ENV LD_LIBRARY_PATH=/opt/VESI/lib
 ENV SIM_CLOCK_MODE=false
 ENV ENABLE_LOG=false
 ENV ROS_DISTRO=iron
+ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 
 RUN apt-get update
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends openssh-server xauth build-essential libboost-all-dev python3-colcon-common-extensions git cmake g++ software-properties-common gdb wget python3-pip debconf python3 python3-setuptools ros-humble-rmw-cyclonedds-cpp
+    apt-get install -y --no-install-recommends openssh-server xauth build-essential libboost-all-dev python3-colcon-common-extensions git cmake g++ software-properties-common gdb wget python3-pip debconf python3 python3-setuptools ros-$ROS_DISTRO-rmw-cyclonedds-cpp
 
 RUN rosdep update && \
     echo 'source /opt/ros/$ROS_DISTRO/local_setup.bash' >> /root/.bashrc
 
 RUN mkdir -p /opt/VESI/lib 
 COPY sut-te-bridge/ros2_bridge_ws/src/sut_te_bridge/include/V-ESI-API/lib/linux/libVESIAPI.so /opt/VESI/lib/
+
+# Setting up CycloneDDS, using the CycloneDDS XML configuration file
+RUN mkdir -p /etc/cyclonedds && \
+    echo 'export CYCLONEDDS_URI=file:///etc/cyclonedds/cyclonedds.xml' >> /root/.bashrc
+COPY cyclonedds.xml /etc/cyclonedds/cyclonedds.xml
 
 RUN ldconfig
 
