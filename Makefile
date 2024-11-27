@@ -9,12 +9,12 @@ vcs-import:
 
 .PHONY: build
 build:
-	make dspace
+	make simphera
 	make foxglove
 
-.PHONY: dspace
-dspace:
-	docker build -t iac_sut_te_bridge:iron -f Dockerfile . --target sut-te-bridge_dev
+.PHONY: dev
+dev:
+	docker build -t iac_sut_te_bridge_dev:iron -f Dockerfile . --target sut-te-bridge_dev
 
 .PHONY: foxglove
 foxglove:
@@ -22,4 +22,4 @@ foxglove:
 
 .PHONY: simphera
 simphera:
-	docker build -t iac_sut_te_bridge_simphera:iron -f Dockerfile . --target sut-te-bridge_simphera
+	docker build -t iac_sut_te_bridge:iron -f Dockerfile . --target sut-te-bridge_simphera
