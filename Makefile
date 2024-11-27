@@ -23,3 +23,7 @@ foxglove:
 .PHONY: simphera
 simphera:
 	docker build -t iac_sut_te_bridge:iron -f Dockerfile . --target sut-te-bridge_simphera
+
+.PHONY: race_msgs
+race_msgs:
+	make vcs-import VCS_FILE=race_msgs.repos
