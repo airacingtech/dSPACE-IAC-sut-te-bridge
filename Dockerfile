@@ -16,7 +16,7 @@ RUN rosdep update && \
     echo 'source /opt/ros/$ROS_DISTRO/local_setup.bash' >> /root/.bashrc
 
 RUN mkdir -p /opt/VESI/lib 
-COPY sut-te-bridge/ros2_bridge_ws/src/sut_te_bridge/include/V-ESI-API/lib/linux/libVESIAPI.so /opt/VESI/lib/
+COPY ros2_bridge_ws/src/sut_te_bridge/include/V-ESI-API/lib/linux/libVESIAPI.so /opt/VESI/lib/
 
 # Setting up CycloneDDS, using the CycloneDDS XML configuration file
 RUN mkdir -p /etc/cyclonedds && \
@@ -39,8 +39,8 @@ FROM sut-te-bridge_base AS sut-te-bridge_dev
 
 RUN mkdir -p /root/runtime_scripts && \
     mkdir -p /root/record_log
-COPY sut-te-bridge/ros2_bridge_ws /root/ros2_bridge_ws
-COPY sut-te-bridge/runtime_scripts /root/runtime_scripts
+COPY ros2_bridge_ws /root/ros2_bridge_ws
+COPY runtime_scripts /root/runtime_scripts
 
 RUN mkdir -p /root/record_log && \
     source /opt/ros/$ROS_DISTRO/local_setup.bash && \
@@ -53,7 +53,7 @@ WORKDIR /root/runtime_scripts
 
 FROM sut-te-bridge_base AS sut-te-bridge_simphera
 
-COPY sut-te-bridge/ros2_bridge_ws /root/ros2_bridge_ws
+COPY ros2_bridge_ws /root/ros2_bridge_ws
 RUN mkdir -p /root/record_log && \
     source /opt/ros/$ROS_DISTRO/local_setup.bash && \
     source /root/ros_ws_aux/install/local_setup.bash && \
