@@ -25,6 +25,8 @@ find_package(npc_controller_msgs REQUIRED)
 find_package(foxglove_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(rosgraph_msgs REQUIRED)
+find_package(race_msgs REQUIRED)
+find_package(lmpc_msgs REQUIRED)
 
 set(MSG_DEPS std_msgs)
 set(MSG_DEPS sensor_msgs)
@@ -34,6 +36,8 @@ set(MSG_DEPS vectornav_msgs)
 set(MSG_DEPS novatel_oem7_msgs)
 set(MSG_DEPS npc_controller_msgs)
 set(MSG_DEPS rosgraph_msgs)
+set(MSG_DEPS race_msgs)
+set(MSG_DEPS lmpc_msgs)
 
 include_directories(
   include
@@ -51,6 +55,8 @@ set(dependencies
   npc_controller_msgs
   foxglove_msgs
   rosgraph_msgs
+  race_msgs
+  lmpc_msgs
 )
 
 install(DIRECTORY include/
