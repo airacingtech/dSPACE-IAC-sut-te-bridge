@@ -28,7 +28,9 @@ RUN ldconfig
 RUN mkdir -p /root/ros_ws_aux
 COPY ros_ws_aux /root/ros_ws_aux
 
-RUN source /opt/ros/$ROS_DISTRO/local_setup.bash && \
+RUN rm -rf /root/ros_ws_aux/src/external/raptor_dbw_msgs/ct_interface/ && \
+    rm -rf /root/ros_ws_aux/src/raptor_dbw_msgs && \
+    source /opt/ros/$ROS_DISTRO/local_setup.bash && \
     rosdep install -i --from-path /root/ros_ws_aux/src --rosdistro $ROS_DISTRO -y && \
     colcon build --symlink-install --base-paths /root/ros_ws_aux --build-base /root/ros_ws_aux/build --install-base /root/ros_ws_aux/install --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo && \
     echo 'source /root/ros_ws_aux/install/local_setup.bash' >> /root/.bashrc
