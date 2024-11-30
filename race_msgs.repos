@@ -7,3 +7,7 @@ repositories:
         type: git
         url: git@github.com:airacingtech/lmpc_msgs.git
         version: main
+    ros_ws_aux/src/external/raptor_dbw_msgs:
+        type: git
+        url: git@github.com:airacingtech/autonoma_raptor_driver.git
+        version: art-iron
