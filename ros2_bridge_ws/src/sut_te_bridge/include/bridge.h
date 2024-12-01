@@ -43,7 +43,44 @@
 
 // Include required msgs for race_common stack
 #include "race_msgs/msg/vehicle_control_command.hpp"
+#include "race_msgs/msg/steering_report.hpp"
+#include "race_msgs/msg/wheel_speed_report.hpp"
+#include "race_msgs/msg/engine_report.hpp"
+#include "race_msgs/msg/vehicle_command.hpp"
+#include "race_msgs/msg/fault_report.hpp"
+#include "race_msgs/msg/misc_report.hpp"
+#include "race_msgs/msg/vehicle_status.hpp"
+#include "race_msgs/msg/tire_pressure_report.hpp"
+#include "race_msgs/msg/wheel_potentiometer_report.hpp"
+#include "race_msgs/msg/wheel_strain_gauge_report.hpp"
+#include "race_msgs/msg/engine_pressures_report.hpp"
+#include "race_msgs/msg/tire_temp_report.hpp"
+#include "race_msgs/msg/brake_report.hpp"
+#include "race_msgs/msg/race_control_rest_of_field.hpp"
+#include "race_msgs/msg/vehicle_kinematic_state.hpp"
+#include "race_msgs/msg/ride_height_report.hpp"
+
 using RaceControlCommand = race_msgs::msg::VehicleControlCommand;
+using RaceSteeringReport = race_msgs::msg::SteeringReport;
+using RaceWheelSpeedReport = race_msgs::msg::WheelSpeedReport;
+using RaceEngineReport = race_msgs::msg::EngineReport;
+using RaceVehicleCommand = race_msgs::msg::VehicleCommand;
+using RaceFaultReport = race_msgs::msg::FaultReport;
+using RaceMiscReport = race_msgs::msg::MiscReport;
+using RaceVehicleStatus = race_msgs::msg::VehicleStatus;
+using RaceTirePressureReport = race_msgs::msg::TirePressureReport;
+using RaceWheelSpeedReport = race_msgs::msg::WheelSpeedReport;
+using RaceWheelPotentiometerReport = race_msgs::msg::WheelPotentiometerReport;
+using RaceWheelStrainGaugeReport = race_msgs::msg::WheelStrainGaugeReport;
+using RaceEnginePressuresReport = race_msgs::msg::EnginePressuresReport;
+using RaceTireTempReport = race_msgs::msg::TireTempReport;
+using RaceBrakeReport = race_msgs::msg::BrakeReport;
+using RaceRestOfField = race_msgs::msg::RaceControlRestOfField;
+using RaceVehicleKinematicState = race_msgs::msg::VehicleKinematicState;
+using RaceRideHeightReport = race_msgs::msg::RideHeightReport;
+
+// #include "raptor_dbw_msgs/msg/base_to_car_summary.hpp"
+// #include "raptor_dbw_msgs/msg/brake_pressure_report.hpp"
 
 #include "foxglove_msgs/msg/scene_update.hpp"
 
@@ -113,6 +150,34 @@ namespace bridge
         rclcpp::Publisher<geometry_msgs::msg::TransformStamped>::SharedPtr egoPositionPublisher_;
 
         rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr resetCommandPublisher_;
+
+        // Publishers for race_common stack
+        rclcpp::Publisher<RaceEngineReport>::SharedPtr pub_engine_report_;
+        rclcpp::Publisher<RaceSteeringReport>::SharedPtr pub_steering_report_;
+        // rclcpp::Publisher<RaceVehicleCommand>::SharedPtr pub_vehicle_command_;
+        // rclcpp::Publisher<RaceVehicleStatus>::SharedPtr pub_vehicle_status_;
+        // rclcpp::Publisher<RaceFaultReport>::SharedPtr pub_fault_report_;
+        rclcpp::Publisher<RaceMiscReport>::SharedPtr pub_misc_report_;
+        rclcpp::Publisher<RaceTirePressureReport>::SharedPtr pub_pressure_fl_report_;
+        rclcpp::Publisher<RaceTirePressureReport>::SharedPtr pub_pressure_fr_report_;
+        rclcpp::Publisher<RaceTirePressureReport>::SharedPtr pub_pressure_rl_report_;
+        rclcpp::Publisher<RaceTirePressureReport>::SharedPtr pub_pressure_rr_report_;
+        rclcpp::Publisher<RaceWheelSpeedReport>::SharedPtr pub_wheel_speed_report_;
+        rclcpp::Publisher<RaceWheelPotentiometerReport>::SharedPtr pub_wheel_pot_report_;
+        rclcpp::Publisher<RaceWheelStrainGaugeReport>::SharedPtr pub_wheel_strain_report_;
+        rclcpp::Publisher<RaceEnginePressuresReport>::SharedPtr pub_engine_pressure_report_;
+        rclcpp::Publisher<RaceTireTempReport>::SharedPtr pub_tire_temp_report_;
+        rclcpp::Publisher<RaceBrakeReport>::SharedPtr pub_brake_report_;
+        // rclcpp::Publisher<RaceRestOfField>::SharedPtr pub_rest_of_field_;
+        // rclcpp::Publisher<RaceRideHeightReport>::SharedPtr pub_ride_height_;
+        // rclcpp::Publisher<RaptorAccCmd>::SharedPtr pub_accel_command_;
+        // rclcpp::Publisher<RaptorBrakeCmd>::SharedPtr pub_brake_command_;
+        // rclcpp::Publisher<RaptorSteeringCmd>::SharedPtr pub_steer_command_;
+        // rclcpp::Publisher<RaptorGearCmd>::SharedPtr pub_gear_command_;
+        // rclcpp::Publisher<RaptorDashSwitchCmd>::SharedPtr pub_dash_switch_cmd_;
+        // rclcpp::Publisher<RaptorCtVehicleAccFeedback>::SharedPtr pub_ct_vehicle_acc_feedback_;
+        // rclcpp::Publisher<raptor_dbw_msgs::msg::BaseToCarSummary>::SharedPtr baseToCarSummaryDataPublisher_;
+        // rclcpp::Publisher<raptor_dbw_msgs::msg::BrakePressureReport>::SharedPtr brakePressureReportDataPublisher_;
 
         // Timer
         rclcpp::TimerBase::SharedPtr updateVESIVehicleInputs_;

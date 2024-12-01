@@ -161,6 +161,34 @@ namespace bridge {
 
       this->resetCommandPublisher_ = this->create_publisher<std_msgs::msg::Bool>("maneuver_reset", qos);
 
+      // Publishers for race_common stack
+      this->pub_engine_report_ = this->create_publisher<RaceEngineReport>("/vehicle/engine_report", rclcpp::SensorDataQoS());
+      this->pub_steering_report_ = this->create_publisher<RaceSteeringReport>("/vehicle/steering_report", rclcpp::SensorDataQoS());
+      // this->pub_vehicle_command_ = this->create_publisher<RaceVehicleCommand>("/rc_to_ct", rclcpp::SensorDataQoS());
+      // this->pub_vehicle_status_ = this->create_publisher<RaceVehicleStatus>("/vehicle/status", rclcpp::SensorDataQoS());
+      // this->pub_fault_report_ = this->create_publisher<RaceFaultReport>("/vehicle/fault_report", rclcpp::SensorDataQoS());
+      this->pub_misc_report_ = this->create_publisher<RaceMiscReport>("/vehicle/misc_report", rclcpp::SensorDataQoS());
+      this->pub_pressure_fl_report_ = this->create_publisher<RaceTirePressureReport>("/vehicle/fl_tire_pressure", rclcpp::SensorDataQoS());
+      this->pub_pressure_fr_report_ = this->create_publisher<RaceTirePressureReport>("/vehicle/fr_tire_pressure", rclcpp::SensorDataQoS());
+      this->pub_pressure_rl_report_ = this->create_publisher<RaceTirePressureReport>("/vehicle/rl_tire_pressure", rclcpp::SensorDataQoS());
+      this->pub_pressure_rr_report_ = this->create_publisher<RaceTirePressureReport>("/vehicle/rr_tire_pressure", rclcpp::SensorDataQoS());
+      this->pub_wheel_speed_report_ = this->create_publisher<RaceWheelSpeedReport>("/vehicle/wheel_speed_report", rclcpp::SensorDataQoS());
+      this->pub_wheel_pot_report_ = this->create_publisher<RaceWheelPotentiometerReport>("/vehicle/wheel_potentiometer_report", rclcpp::SensorDataQoS());
+      this->pub_wheel_strain_report_ = this->create_publisher<RaceWheelStrainGaugeReport>("/vehicle/wheel_strain_gauge_report", rclcpp::SensorDataQoS());
+      this->pub_engine_pressure_report_ = this->create_publisher<RaceEnginePressuresReport>("/vehicle/engine_pressures_report", rclcpp::SensorDataQoS());
+      this->pub_tire_temp_report_ = this->create_publisher<RaceTireTempReport>("/tire_temperature", rclcpp::SensorDataQoS());
+      this->pub_brake_report_ = this->create_publisher<RaceBrakeReport>("/brake_report", rclcpp::SensorDataQoS());
+      // this->pub_rest_of_field_ = this->create_publisher<RaceRestOfField>("race_rof_report", rclcpp::SensorDataQoS());
+      // this->pub_ride_height_ = this->create_publisher<RaceRideHeightReport>("race_ride_height_report", rclcpp::SensorDataQoS());
+      // this->pub_accel_command_ = this->create_publisher<RaptorAccCmd>("/raptor_dbw_interface/accelerator_cmd", rclcpp::SensorDataQoS());
+      // this->pub_brake_command_ = this->create_publisher<RaptorBrakeCmd>("/raptor_dbw_interface/brake_pressure_cmd", rclcpp::SensorDataQoS());
+      // this->pub_steer_command_ = this->create_publisher<RaptorSteeringCmd>("/raptor_dbw_interface/steering_cmd", rclcpp::SensorDataQoS());
+      // this->pub_gear_command_ = this->create_publisher<RaptorGearCmd>("/raptor_dbw_interface/gear_shift_cmd", rclcpp::SensorDataQoS());
+      // this->pub_dash_switch_cmd_ = this->create_publisher<RaptorDashSwitchCmd>("raptor_dash_switch_cmd", rclcpp::SensorDataQoS());
+      // this->pub_ct_vehicle_acc_feedback_ = this->create_publisher<RaptorCtVehicleAccFeedback>("raptor_ct_vehicle_acc_feedback", rclcpp::SensorDataQoS());
+      // this->baseToCarSummaryDataPublisher_ = this->create_publisher<raptor_dbw_msgs::msg::BaseToCarSummary>("raptor_dbw_interface/base_to_car_summary", qos);
+      // this->brakePressureReportDataPublisher_ = this->create_publisher<raptor_dbw_msgs::msg::BrakePressureReport>("raptor_dbw_interface/brake_pressure_report", qos);
+
       // this->receiveVehicleCommands_ = this->create_subscription<autonoma_msgs::msg::VehicleInputs>("vehicle_inputs", qos, std::bind(&SutTeBridgeNode::subscribeVehicleCommandsCallback, this, _1));
       this->receiveVehicleCommands_ = this->create_subscription<RaceControlCommand>("auto/raw_command", qos, std::bind(&SutTeBridgeNode::subscribeVehicleCommandsCallback, this, _1));
       this->receiveRaptorCommands_ = this->create_subscription<autonoma_msgs::msg::ToRaptor>("to_raptor", qos, std::bind(&SutTeBridgeNode::subscribeRaptorCommandsCallback, this, _1));
@@ -747,6 +775,19 @@ namespace bridge {
     {
       this->raceControlDataPublisher_->publish(raceControlData);
     }
+
+    // Required for race_common
+
+    // auto baseToCarSummaryData = raptor_dbw_msgs::msg::BaseToCarSummary();
+    // baseToCarSummaryData.stamp = raceControlData.header.stamp;
+    // baseToCarSummaryData.base_to_car_heartbeat = raceControlData.base_to_car_heartbeat;
+    // baseToCarSummaryData.track_flag = raceControlData.track_flag;
+    // baseToCarSummaryData.veh_flag = raceControlData.veh_flag;
+    // baseToCarSummaryData.veh_rank = raceControlData.veh_rank;
+    // baseToCarSummaryData.round_target_speed = raceControlData.round_target_speed;
+    // baseToCarSummaryData.lap_count = raceControlData.lap_count;
+    // baseToCarSummaryData.lap_distance = static_cast<uint8_t>(this->canBus->asm_bus_var.race_control_var.lap_distance);
+    // this->baseToCarSummaryDataPublisher_->publish(baseToCarSummaryData);
   }
 
   void SutTeBridgeNode::publishVehicleData()
@@ -830,6 +871,101 @@ namespace bridge {
     }
 
     this->vehicleDataPublisher_->publish(vehicleData);
+
+    // Required for race_common stack
+    auto race_steering_report = RaceSteeringReport();
+    race_steering_report.stamp = vehicleData.header.stamp;
+    race_steering_report.front_wheel_angle_rad = (this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.steering_wheel_angle) / 180.0 * M_PI;
+    race_steering_report.front_wheel_angle_rad_cmd = (this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.steering_wheel_angle_cmd) / 180.0 * M_PI;
+    race_steering_report.fault_steering_system = false;
+    this->pub_steering_report_->publish(race_steering_report);
+
+    auto race_wheel_speed_report = RaceWheelSpeedReport();
+    race_wheel_speed_report.header.stamp = vehicleData.header.stamp;
+    race_wheel_speed_report.front_left = (this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.ws_front_left) * 1000.0 / 3600.0 / 0.29; // wheel radius = 0.29 m
+    race_wheel_speed_report.front_right = (this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.ws_front_right) * 1000.0 / 3600.0 / 0.29;
+    race_wheel_speed_report.rear_left = (this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.ws_rear_left) * 1000.0 / 3600.0 / 0.29;
+    race_wheel_speed_report.rear_right = (this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.ws_rear_right) * 1000.0 / 3600.0 / 0.29;
+    this->pub_wheel_speed_report_->publish(race_wheel_speed_report);
+
+    auto race_misc_report = RaceMiscReport();
+    race_misc_report.stamp = vehicleData.header.stamp;
+    race_misc_report.battery_voltage = this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.battery_voltage;
+    race_misc_report.safety_switch_state = this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.safety_switch_state;
+    race_misc_report.mode_switch_state = this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.mode_switch_state;
+    race_misc_report.sys_state = this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.sys_state;
+    race_misc_report.rolling_counter = 0;
+    this->pub_misc_report_->publish(race_misc_report);
+
+    auto race_tire_pressure_report_fl = RaceTirePressureReport();
+    race_tire_pressure_report_fl.stamp = vehicleData.header.stamp;
+    race_tire_pressure_report_fl.tire_pressure = this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.fl_tire_pressure;
+    race_tire_pressure_report_fl.tire_pressure_gauge = this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.fl_tire_pressure_gauge;
+    auto race_tire_pressure_report_fr = RaceTirePressureReport();
+    race_tire_pressure_report_fr.stamp = vehicleData.header.stamp;
+    race_tire_pressure_report_fr.tire_pressure = this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.fr_tire_pressure;
+    race_tire_pressure_report_fr.tire_pressure_gauge = this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.fr_tire_pressure_gauge;
+    auto race_tire_pressure_report_rl = RaceTirePressureReport();
+    race_tire_pressure_report_rl.stamp = vehicleData.header.stamp;
+    race_tire_pressure_report_rl.tire_pressure = this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.rl_tire_pressure;
+    race_tire_pressure_report_rl.tire_pressure_gauge = this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.rl_tire_pressure_gauge;
+    auto race_tire_pressure_report_rr = RaceTirePressureReport();
+    race_tire_pressure_report_rr.stamp = vehicleData.header.stamp;
+    race_tire_pressure_report_rr.tire_pressure = this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.rr_tire_pressure;
+    race_tire_pressure_report_rr.tire_pressure_gauge = this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.rr_tire_pressure_gauge;
+    this->pub_pressure_fl_report_->publish(race_tire_pressure_report_fl);
+    this->pub_pressure_fr_report_->publish(race_tire_pressure_report_fr);
+    this->pub_pressure_rl_report_->publish(race_tire_pressure_report_rl);
+    this->pub_pressure_rr_report_->publish(race_tire_pressure_report_rr);
+
+    auto race_wheel_potentiometer_report = RaceWheelPotentiometerReport();
+    race_wheel_potentiometer_report.stamp = vehicleData.header.stamp;
+    race_wheel_potentiometer_report.fl_damper_linear_potentiometer = this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.fl_damper_linear_potentiometer;
+    race_wheel_potentiometer_report.fr_damper_linear_potentiometer = this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.fr_damper_linear_potentiometer;
+    race_wheel_potentiometer_report.rl_damper_linear_potentiometer = this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.rl_damper_linear_potentiometer;
+    race_wheel_potentiometer_report.rr_damper_linear_potentiometer = this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.rr_damper_linear_potentiometer;
+    this->pub_wheel_pot_report_->publish(race_wheel_potentiometer_report);
+
+    auto race_wheel_strain_report = RaceWheelStrainGaugeReport();
+    race_wheel_strain_report.stamp = vehicleData.header.stamp;
+    race_wheel_strain_report.fl_wheel_load = this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.fl_wheel_load;
+    race_wheel_strain_report.fr_wheel_load = this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.fr_wheel_load;
+    race_wheel_strain_report.rl_wheel_load = this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.rl_wheel_load;
+    race_wheel_strain_report.rr_wheel_load = this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.rr_wheel_load;
+    this->pub_wheel_strain_report_->publish(race_wheel_strain_report);
+
+    auto race_tire_temp_report = RaceTireTempReport();
+    race_tire_temp_report.stamp = vehicleData.header.stamp;
+    race_tire_temp_report.lfc_inner_temp = this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.fl_tire_temperature;
+    race_tire_temp_report.lfc_middle_temp = race_tire_temp_report.lfc_inner_temp;
+    race_tire_temp_report.lfc_outer_temp = race_tire_temp_report.lfc_inner_temp;
+    race_tire_temp_report.lrc_inner_temp = this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.rl_tire_temperature;
+    race_tire_temp_report.lrc_middle_temp = race_tire_temp_report.lrc_inner_temp;
+    race_tire_temp_report.lrc_outer_temp = race_tire_temp_report.lrc_inner_temp;
+    race_tire_temp_report.rfc_inner_temp = this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.fr_tire_temperature;
+    race_tire_temp_report.rfc_middle_temp = race_tire_temp_report.rfc_inner_temp;
+    race_tire_temp_report.rfc_outer_temp = race_tire_temp_report.rfc_inner_temp;
+    race_tire_temp_report.rrc_inner_temp = this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.rr_tire_temperature;
+    race_tire_temp_report.rrc_middle_temp = race_tire_temp_report.rrc_inner_temp;
+    race_tire_temp_report.rrc_outer_temp = race_tire_temp_report.rrc_inner_temp;
+    this->pub_tire_temp_report_->publish(race_tire_temp_report);
+
+    auto race_brake_report = RaceBrakeReport();
+    race_brake_report.stamp = vehicleData.header.stamp;
+    race_brake_report.brake_pressure_fdbk_front = static_cast<uint16_t>(this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.front_brake_pressure);
+    race_brake_report.brake_pressure_fdbk_rear = static_cast<uint16_t>(this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.rear_brake_pressure);
+    race_brake_report.brk_pressure_fdbk_counter = 0;
+    race_brake_report.brake_temp_fl = this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.fl_brake_temp;
+    race_brake_report.brake_temp_fr = this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.fr_brake_temp;
+    race_brake_report.brake_temp_rl = this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.rl_brake_temp;
+    race_brake_report.brake_temp_rr = this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.rr_brake_temp;
+    this->pub_brake_report_->publish(race_brake_report);
+    // auto brakePressureReportData = raptor_dbw_msgs::msg::BrakePressureReport();
+    // brakePressureReportData.stamp = vehicleData.header.stamp;
+    // brakePressureReportData.brake_pressure_fdbk_front = static_cast<uint16_t>(this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.front_brake_pressure);
+    // brakePressureReportData.brake_pressure_fdbk_rear = static_cast<uint16_t>(this->canBus->sim_interface_var.vehicle_sensors_var.vehicle_data_var.rear_brake_pressure);
+    // brakePressureReportData.brk_pressure_fdbk_counter = 0;
+    // this->brakePressureReportDataPublisher_->publish(brakePressureReportData);
   }
 
   void SutTeBridgeNode::publishPowertrainData()
@@ -883,6 +1019,30 @@ namespace bridge {
     }
 
     this->powertrainDataPublisher_->publish(powertrainData);
+
+    // Required for race_common stack
+    auto race_engine_rpt = RaceEngineReport();
+    race_engine_rpt.stamp = powertrainData.header.stamp;
+    race_engine_rpt.engine_on_status = this->canBus->sim_interface_var.vehicle_sensors_var.power_train_data_var.engine_on_status;
+    race_engine_rpt.engine_run_switch_status = this->canBus->sim_interface_var.vehicle_sensors_var.power_train_data_var.engine_run_switch_status;
+    race_engine_rpt.throttle_position = this->canBus->sim_interface_var.vehicle_sensors_var.power_train_data_var.throttle_position;
+    race_engine_rpt.current_gear = this->canBus->sim_interface_var.vehicle_sensors_var.power_train_data_var.current_gear;
+    race_engine_rpt.engine_rpm = this->canBus->sim_interface_var.vehicle_sensors_var.power_train_data_var.engine_rpm;
+    race_engine_rpt.vehicle_speed_kmph = this->canBus->sim_interface_var.vehicle_sensors_var.power_train_data_var.vehicle_speed_kmph;
+    race_engine_rpt.gear_shift_status = this->canBus->sim_interface_var.vehicle_sensors_var.power_train_data_var.gear_shift_status;
+    race_engine_rpt.fuel_used = this->canBus->sim_interface_var.vehicle_sensors_var.power_train_data_var.fuel_level;
+    race_engine_rpt.torque_at_wheels = this->canBus->sim_interface_var.vehicle_sensors_var.power_train_data_var.torque_wheels_nm;
+    this->pub_engine_report_->publish(race_engine_rpt);
+
+    auto race_engine_pressure_report = RaceEnginePressuresReport();
+    race_engine_pressure_report.stamp = powertrainData.header.stamp;
+    race_engine_pressure_report.fuel_pressure = this->canBus->sim_interface_var.vehicle_sensors_var.power_train_data_var.fuel_pressure;
+    race_engine_pressure_report.engine_coolant_temperature = this->canBus->sim_interface_var.vehicle_sensors_var.power_train_data_var.engine_coolant_temperature;
+    race_engine_pressure_report.transmission_oil_pressure = this->canBus->sim_interface_var.vehicle_sensors_var.power_train_data_var.transmission_oil_pressure;
+    race_engine_pressure_report.transmission_oil_temperature = this->canBus->sim_interface_var.vehicle_sensors_var.power_train_data_var.transmission_oil_temperature;
+    race_engine_pressure_report.engine_oil_pressure = this->canBus->sim_interface_var.vehicle_sensors_var.power_train_data_var.engine_oil_pressure;
+    race_engine_pressure_report.engine_oil_temperature = this->canBus->sim_interface_var.vehicle_sensors_var.power_train_data_var.engine_oil_temperature;
+    this->pub_engine_pressure_report_->publish(race_engine_pressure_report);
   }
 
   void SutTeBridgeNode::publishGroundTruthArray()
