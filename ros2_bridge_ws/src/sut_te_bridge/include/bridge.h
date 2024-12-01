@@ -9,6 +9,7 @@
 #include <fstream>
 #include <algorithm>
 #include <tf2/LinearMath/Quaternion.h>
+#include <cmath>
 
 #include "geometry_msgs/msg/transform_stamped.hpp"
 
@@ -39,6 +40,10 @@
 #include "novatel_oem7_msgs/msg/inspva.hpp"
 #include "novatel_oem7_msgs/msg/heading2.hpp"
 #include "novatel_oem7_msgs/msg/rawimu.hpp"
+
+// Include required msgs for race_common stack
+#include "race_msgs/msg/vehicle_control_command.hpp"
+using RaceControlCommand = race_msgs::msg::VehicleControlCommand;
 
 #include "foxglove_msgs/msg/scene_update.hpp"
 
@@ -113,7 +118,8 @@ namespace bridge
         rclcpp::TimerBase::SharedPtr updateVESIVehicleInputs_;
 
         // Subsciber
-        rclcpp::Subscription<autonoma_msgs::msg::VehicleInputs>::SharedPtr receiveVehicleCommands_;
+        // rclcpp::Subscription<autonoma_msgs::msg::VehicleInputs>::SharedPtr receiveVehicleCommands_;
+        rclcpp::Subscription<RaceControlCommand>::SharedPtr receiveVehicleCommands_;
         rclcpp::Subscription<autonoma_msgs::msg::ToRaptor>::SharedPtr receiveRaptorCommands_;
         rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr useCustomRaceControlSource_;
         rclcpp::Subscription<std_msgs::msg::UInt16>::SharedPtr simTimeIncrease_;
@@ -170,7 +176,8 @@ namespace bridge
         void simClockTimeCallback();
         void initialSimClockPublish();
         void sendVehicleFeedbackToSimulation();
-        void subscribeVehicleCommandsCallback(const autonoma_msgs::msg::VehicleInputs &msg);
+        // void subscribeVehicleCommandsCallback(const autonoma_msgs::msg::VehicleInputs &msg);
+        void subscribeVehicleCommandsCallback(const RaceControlCommand &msg);
         void subscribeRaptorCommandsCallback(const autonoma_msgs::msg::ToRaptor &msg);
         void switchRaceControlSourceCallback(const std_msgs::msg::Bool &msg);
         void simTimeIncreaseCallback(const std_msgs::msg::UInt16 &msg);

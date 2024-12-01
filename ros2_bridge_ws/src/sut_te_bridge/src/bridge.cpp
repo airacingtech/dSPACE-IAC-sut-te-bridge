@@ -161,7 +161,8 @@ namespace bridge {
 
       this->resetCommandPublisher_ = this->create_publisher<std_msgs::msg::Bool>("maneuver_reset", qos);
 
-      this->receiveVehicleCommands_ = this->create_subscription<autonoma_msgs::msg::VehicleInputs>("vehicle_inputs", qos, std::bind(&SutTeBridgeNode::subscribeVehicleCommandsCallback, this, _1));
+      // this->receiveVehicleCommands_ = this->create_subscription<autonoma_msgs::msg::VehicleInputs>("vehicle_inputs", qos, std::bind(&SutTeBridgeNode::subscribeVehicleCommandsCallback, this, _1));
+      this->receiveVehicleCommands_ = this->create_subscription<RaceControlCommand>("auto/raw_command", qos, std::bind(&SutTeBridgeNode::subscribeVehicleCommandsCallback, this, _1));
       this->receiveRaptorCommands_ = this->create_subscription<autonoma_msgs::msg::ToRaptor>("to_raptor", qos, std::bind(&SutTeBridgeNode::subscribeRaptorCommandsCallback, this, _1));
 
       this->useCustomRaceControlSource_ = this->create_subscription<std_msgs::msg::Bool>("use_custom_race_control", qos, std::bind(&SutTeBridgeNode::switchRaceControlSourceCallback, this, _1));
@@ -581,7 +582,37 @@ namespace bridge {
       this->api.increaseSimulationTime(0.01);
   }
 
-  void SutTeBridgeNode::subscribeVehicleCommandsCallback(const autonoma_msgs::msg::VehicleInputs & msg)
+  // void SutTeBridgeNode::subscribeVehicleCommandsCallback(const autonoma_msgs::msg::VehicleInputs & msg)
+  // {
+  //   if (this->verbosePrinting)
+  //   {
+  //     std::cout << "subscribeVehicleCommandsCallback" << '\n';
+  //   }
+
+  //   // Throttle command (%)
+  //   this->feedbackCmd.vehicle_inputs.throttle_cmd = msg.throttle_cmd;
+
+  //   this->feedbackCmd.vehicle_inputs.throttle_cmd_count = msg.throttle_cmd_count;
+  //   this->feedbackCmd.vehicle_inputs.enable_throttle_cmd = 1;
+
+  //   // # Brake pressure command (kPa)
+  //   this->feedbackCmd.vehicle_inputs.brake_cmd = msg.brake_cmd;
+  //   this->feedbackCmd.vehicle_inputs.brake_cmd_count = msg.brake_cmd_count;
+  //   this->feedbackCmd.vehicle_inputs.enable_brake_cmd = 1;
+
+  //   // # Steering motor angle command (degrees)
+  //   this->feedbackCmd.vehicle_inputs.steering_cmd = msg.steering_cmd;
+  //   this->feedbackCmd.vehicle_inputs.steering_cmd_count = msg.steering_cmd_count;
+  //   this->feedbackCmd.vehicle_inputs.enable_steering_cmd = 1;
+
+  //   // # Gear command
+  //   this->feedbackCmd.vehicle_inputs.gear_cmd = msg.gear_cmd;
+  //   this->feedbackCmd.vehicle_inputs.enable_gear_cmd = 1;
+
+  //   this->feedbackDataAvailabe = true;
+  // }
+
+  void SutTeBridgeNode::subscribeVehicleCommandsCallback(const RaceControlCommand & msg)
   {
     if (this->verbosePrinting)
     {
@@ -589,19 +620,15 @@ namespace bridge {
     }
 
     // Throttle command (%)
-    this->feedbackCmd.vehicle_inputs.throttle_cmd = msg.throttle_cmd;
-
-    this->feedbackCmd.vehicle_inputs.throttle_cmd_count = msg.throttle_cmd_count;
+    this->feedbackCmd.vehicle_inputs.throttle_cmd = msg.accelerator_cmd;
     this->feedbackCmd.vehicle_inputs.enable_throttle_cmd = 1;
 
     // # Brake pressure command (kPa)
-    this->feedbackCmd.vehicle_inputs.brake_cmd = msg.brake_cmd;
-    this->feedbackCmd.vehicle_inputs.brake_cmd_count = msg.brake_cmd_count;
+    this->feedbackCmd.vehicle_inputs.brake_cmd = msg.brake_cmd * 6894.76;
     this->feedbackCmd.vehicle_inputs.enable_brake_cmd = 1;
 
     // # Steering motor angle command (degrees)
-    this->feedbackCmd.vehicle_inputs.steering_cmd = msg.steering_cmd;
-    this->feedbackCmd.vehicle_inputs.steering_cmd_count = msg.steering_cmd_count;
+    this->feedbackCmd.vehicle_inputs.steering_cmd = msg.steering_cmd / M_PI * 180.0;
     this->feedbackCmd.vehicle_inputs.enable_steering_cmd = 1;
 
     // # Gear command
