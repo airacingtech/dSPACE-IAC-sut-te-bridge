@@ -12,7 +12,7 @@ namespace bridge {
       std::cout << "Set SimManager Host IP to: "<< std::getenv("VESI_IP") << std::endl;
     } else {
       this->api.setSimManagerHost("127.0.0.1");
-      std::cout << "Set SimManager Host IP to: 127.0.0.1 (default)" std::endl;
+      std::cout << "Set SimManager Host IP to: 127.0.0.1 (default)" << std::endl;
     }
     
     if (std::getenv("ASM_IP")){
