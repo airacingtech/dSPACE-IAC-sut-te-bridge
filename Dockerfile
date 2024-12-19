@@ -12,7 +12,7 @@ ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 RUN apt-get update && \
     apt-get install -y --no-install-recommends openssh-server xauth build-essential libboost-all-dev python3-colcon-common-extensions git cmake zip g++ software-properties-common gdb wget python3-pip debconf python3 python3-setuptools ros-$ROS_DISTRO-rmw-cyclonedds-cpp
 
-RUN rosdep update && \
+RUN rosdep update --include-eol-distros && \
     echo 'source /opt/ros/$ROS_DISTRO/local_setup.bash' >> /root/.bashrc
 
 RUN mkdir -p /opt/VESI/lib 
