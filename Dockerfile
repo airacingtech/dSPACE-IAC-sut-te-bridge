@@ -34,7 +34,7 @@ RUN mkdir -p /root/runtime_scripts && \
     mkdir -p /root/record_log
 COPY runtime_scripts /root/runtime_scripts
 
-WORKDIR /root/runtime_scripts
+WORKDIR /root/
 
 ENTRYPOINT ["/bin/bash"]
 
