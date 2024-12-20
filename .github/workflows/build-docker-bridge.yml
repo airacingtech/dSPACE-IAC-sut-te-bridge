@@ -34,69 +34,54 @@ jobs:
           registry: ghcr.io
           username: airacingtechba
           password: ${{ secrets.PAT }}
-    #   - name: Set up Docker Buildx
-    #     id: buildx
-    #     uses: docker/setup-buildx-action@v3
-    #     with:
-    #       install: true
-    #   - name: Get the Ref
-    #     id: get-ref
-    #     uses: sisaha9/ref-to-tag-action@v2
-    #     with:
-    #       ref: ${{ github.ref }}
-    #       head_ref: ${{ github.head_ref }}
-    #   - name: Free Disk Space (Ubuntu)
-    #     uses: jlumbroso/free-disk-space@v1.3.1
-    #     with:
-    #       tool-cache: true
-    #   - name: Cache Docker layers
-    #     uses: actions/cache@v4
-    #     with:
-    #       path: /tmp/.buildx-cache-${{ matrix.SAVE_NAME }}
-    #       key: ${{ runner.os }}-buildx-dev-${{ matrix.SAVE_NAME }}-${{ github.sha }}
-    #       restore-keys: |
-    #         ${{ runner.os }}-buildx-dev-${{ matrix.SAVE_NAME }}
-    #         ${{ runner.os }}-buildx-dev
-    #   - name: Build and Push Docker image
-    #     id: docker_build_push
-    #     uses: docker/build-push-action@v6
-    #     with:
-    #       context: .
-    #       file: tools/image/Dockerfile
-    #       pull: true
-    #       push: true
-    #       tags: |
-    #         ghcr.io/airacingtech/${{ matrix.SAVE_NAME }}:${{ steps.get-ref.outputs.tag }}
-    #       ssh: |
-    #         default=${{ env.SSH_AUTH_SOCK }}
-    #       cache-from: type=local,src=/tmp/.buildx-cache-${{ matrix.SAVE_NAME }}
-    #       cache-to: type=local,dest=/tmp/.buildx-cache-new-${{ matrix.SAVE_NAME }},mode=max
-    #       build-args: |
-    #         BASE_IMAGE=${{ matrix.BASE_IMAGE }}
-    #         ROS_DISTRO=${{ matrix.ROS_DISTRO }}
-    #         ROS_SOURCE=${{ matrix.ROS_SOURCE }}
-    #         ROS_INSTALL=${{ matrix.ROS_INSTALL }}
-    #         SKIP_KEYS=${{ matrix.SKIP_KEYS }}
-    #         APT_FILE=${{ matrix.APT_FILE }}
-    #         APT_GPU_FILE=${{ matrix.APT_GPU_FILE }}
-    #         PIP_FILE=${{ matrix.PIP_FILE }}
-    #         PIP_GPU_FILE=${{ matrix.PIP_GPU_FILE }}
-    #         PYTORCH_FILE=${{ matrix.PYTORCH_FILE }}
-    #         EXPORTS_SCRIPT=${{ matrix.EXPORTS_SCRIPT }}
-    #         EXPORTS_GPU_SCRIPT=${{ matrix.EXPORTS_GPU_SCRIPT }}
-    #         VCS_IMPORTS_SCRIPT=${{ matrix.VCS_IMPORTS_SCRIPT }}
-    #         CUSTOM_INSTALL_FILE=${{ matrix.CUSTOM_INSTALL_FILE }}
-    #       target: art_image
-    #   - name: Delete old cache
-    #     run: |
-    #       rm -rf /tmp/.buildx-cache-${{ matrix.SAVE_NAME }}
-    #       mv /tmp/.buildx-cache-new-${{ matrix.SAVE_NAME }} /tmp/.buildx-cache-${{ matrix.SAVE_NAME }}
-    #   - name: Save image name to Github Output
-    #     id: save_image_name
-    #     run: |
-    #       echo "image_name=ghcr.io/airacingtech/${{ matrix.SAVE_NAME }}:${{ steps.get-ref.outputs.tag }}" >> $GITHUB_OUTPUT
-    #       echo "cache_name=${{ matrix.SAVE_NAME }}" >> $GITHUB_OUTPUT
-    #       echo "tag_name=${{ steps.get-ref.outputs.tag }}" >> $GITHUB_OUTPUT
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          install: true
+      - name: Get the Ref
+        id: get-ref
+        uses: sisaha9/ref-to-tag-action@v2
+        with:
+          ref: ${{ github.ref }}
+          head_ref: ${{ github.head_ref }}
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          tool-cache: true
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache-${{ matrix.SAVE_NAME }}
+          key: ${{ runner.os }}-buildx-dev-${{ matrix.SAVE_NAME }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-dev-${{ matrix.SAVE_NAME }}
+            ${{ runner.os }}-buildx-dev
+      - name: Build and Push Docker image
+        id: docker_build_push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          pull: true
+          push: true
+          tags: |
+            ghcr.io/airacingtech/${{ matrix.SAVE_NAME }}:${{ steps.get-ref.outputs.tag }}
+          ssh: |
+            default=${{ env.SSH_AUTH_SOCK }}
+          cache-from: type=local,src=/tmp/.buildx-cache-${{ matrix.SAVE_NAME }}
+          cache-to: type=local,dest=/tmp/.buildx-cache-new-${{ matrix.SAVE_NAME }},mode=max
+          target: art_image
+      - name: Delete old cache
+        run: |
+          rm -rf /tmp/.buildx-cache-${{ matrix.SAVE_NAME }}
+          mv /tmp/.buildx-cache-new-${{ matrix.SAVE_NAME }} /tmp/.buildx-cache-${{ matrix.SAVE_NAME }}
+      - name: Save image name to Github Output
+        id: save_image_name
+        run: |
+          echo "image_name=ghcr.io/airacingtech/${{ matrix.SAVE_NAME }}:${{ steps.get-ref.outputs.tag }}" >> $GITHUB_OUTPUT
+          echo "cache_name=${{ matrix.SAVE_NAME }}" >> $GITHUB_OUTPUT
+          echo "tag_name=${{ steps.get-ref.outputs.tag }}" >> $GITHUB_OUTPUT
 #   build-test:
 #     runs-on: ubuntu-latest
 #     needs: build-push
