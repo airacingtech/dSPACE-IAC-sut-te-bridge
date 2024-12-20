@@ -80,7 +80,7 @@ jobs:
             default=${{ env.SSH_AUTH_SOCK }}
           cache-from: type=local,src=/tmp/.buildx-cache-${{ matrix.SAVE_NAME }}
           cache-to: type=local,dest=/tmp/.buildx-cache-new-${{ matrix.SAVE_NAME }},mode=max
-          target: sut-te-bridge_dev
+          target: sut-te-bridge_base
       - name: Build and Push Docker image Foxglove Bridge
         id: docker_build_push_foxglove_bridge
         uses: docker/build-push-action@v6
