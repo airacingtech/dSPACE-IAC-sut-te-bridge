@@ -15,7 +15,7 @@ jobs:
       matrix:
         include:
           - SAVE_NAME: art_ros_iron_sut_te_bridge
-            FOXGLOVE_NAME: art_ros_iron_foxglove_bridge
+            FOXGLOVE_NAME: art_ros_iron_sut_te_bridge_foxglove_bridge
             BASE_IMAGE: ros:iron-ros-base
             DOCKERFILE: Dockerfile 
     outputs:
