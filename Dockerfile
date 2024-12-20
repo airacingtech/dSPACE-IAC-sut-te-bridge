@@ -32,7 +32,7 @@ FROM sut-te-bridge_base AS sut-te-bridge_dev
 # Prepares image for an SUT to be mounted into the container during runtime
 RUN mkdir -p /root/runtime_scripts && \
     mkdir -p /root/record_log
-COPY sut-te-bridge/runtime_scripts /root/runtime_scripts
+COPY runtime_scripts /root/runtime_scripts
 
 WORKDIR /root/runtime_scripts
 
