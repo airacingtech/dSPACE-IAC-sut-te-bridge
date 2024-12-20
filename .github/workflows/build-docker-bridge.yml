@@ -3,7 +3,7 @@ name: AI Racing Tech  dSpace IAC sut-te-brige Docker
 on:
     workflow_dispatch:
     push:
-      branches: [ "main" ]
+      branches: [ "main", "moises/devel" ]
     pull_request:
       branches: [ "main" ]
 
