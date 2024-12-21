@@ -8,7 +8,7 @@ ENV SIM_CLOCK_MODE=false
 ENV ENABLE_LOG=false
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends openssh-server xauth build-essential libboost-all-dev python3-colcon-common-extensions git cmake zip g++ software-properties-common gdb wget python3-pip debconf python3 python3-setuptools ros-iron-rmw-cyclonedds-cpp tail
+    apt-get install -y --no-install-recommends openssh-server xauth build-essential libboost-all-dev python3-colcon-common-extensions git cmake zip g++ software-properties-common gdb wget python3-pip debconf python3 python3-setuptools ros-iron-rmw-cyclonedds-cpp
 
 RUN rosdep update --include-eol-distros && \
     echo 'source /opt/ros/iron/local_setup.bash' >> /root/.bashrc
@@ -37,7 +37,7 @@ COPY runtime_scripts /root/runtime_scripts
 
 WORKDIR /root/runtime_scripts
 
-ENTRYPOINT ["tail -f /dev/null"]
+ENTRYPOINT ["tail", "-f", "/dev/null"]
 
 FROM sut-te-bridge_base AS sut-te-bridge_simphera
 # Build bridge node and enable autostart for headless execution
