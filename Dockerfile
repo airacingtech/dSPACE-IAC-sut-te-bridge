@@ -1,4 +1,4 @@
-FROM ros:iron-ros-base-jammy AS dspace_ros_base
+FROM ghcr.io/airacingtech/art_ros_iron_cpu:moises_lvms_december_24 AS dspace_ros_base
 # Adds all dspace specific dependencies to a ros iron base image
 SHELL ["/bin/bash", "-c"]
 ENTRYPOINT ["tail", "-f", "/dev/null"]
