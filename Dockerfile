@@ -22,7 +22,6 @@ FROM dspace_ros_base AS sut-te-bridge_base
 # Build bridge message definitions to enable dev working environment
 RUN mkdir -p /root/ros_ws_aux
 COPY ros_ws_aux /root/ros_ws_aux
-COPY sut-te-bridge/ros2_bridge_ws /root/ros2_bridge_ws
 
 RUN source /opt/ros/iron/local_setup.bash && \
     rosdep install -i --from-path /root/ros_ws_aux/src --rosdistro iron -y && \
