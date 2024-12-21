@@ -37,7 +37,7 @@ COPY runtime_scripts /root/runtime_scripts
 
 WORKDIR /root/runtime_scripts
 
-ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["tail -f /dev/null"]
 
 FROM sut-te-bridge_base AS sut-te-bridge_simphera
 # Build bridge node and enable autostart for headless execution
