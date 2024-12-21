@@ -1,4 +1,4 @@
-FROM osrf/ros:iron-desktop-full-jammy AS dspace_ros_base
+FROM osrf/ros:iron-ros-base-jammy AS dspace_ros_base
 # Adds all dspace specific dependencies to a ros iron base image
 SHELL ["/bin/bash", "-c"]
 ENTRYPOINT ["tail", "-f", "/dev/null"]
