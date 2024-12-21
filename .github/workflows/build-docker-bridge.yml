@@ -16,7 +16,7 @@ jobs:
         include:
           - SAVE_NAME: art_ros_iron_sut_te_bridge
             FOXGLOVE_NAME: art_ros_iron_sut_te_bridge_foxglove_bridge
-            RACE_COMMON_NAME: art_ros_iron_cpu
+            RACE_COMMON_NAME: art_ros_iron_sut_te_bridge_race_common
             BASE_IMAGE: ros:iron-ros-base
             DOCKERFILE: Dockerfile 
     outputs:
