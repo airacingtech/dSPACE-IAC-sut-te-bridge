@@ -37,7 +37,7 @@ COPY runtime_scripts /root/runtime_scripts
 
 WORKDIR /root/runtime_scripts
 
-ENTRYPOINT ["sh", "-c", ". /opt/ros/humble/local_setup.sh && . /root/ros_ws_aux/install/local_setup.sh && . /root/ros2_bridge_ws/install/local_setup.sh && ros2 run sut_te_bridge SutTeBridgeNode --ros-args -p use_sim_time:=$SIM_CLOCK_MODE"]
+ENTRYPOINT ["sh", "-c", ". /opt/ros/iron/local_setup.sh && . /root/ros_ws_aux/install/local_setup.sh && . /root/ros2_bridge_ws/install/local_setup.sh && ros2 run sut_te_bridge SutTeBridgeNode --ros-args -p use_sim_time:=$SIM_CLOCK_MODE"]
 
 FROM sut-te-bridge_base AS sut-te-bridge_simphera
 # Build bridge node and enable autostart for headless execution
