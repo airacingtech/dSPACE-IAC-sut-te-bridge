@@ -54,6 +54,6 @@ ENTRYPOINT ["sh", "-c", ". /opt/ros/iron/local_setup.sh && . /root/ros_ws_aux/in
 FROM sut-te-bridge_base AS sut-te-bridge_foxglove
 # Install Foxglove bridge 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends ros-iron-foxglove-bridge
+    apt-get install -y --no-install-recommends ros-iron-foxglove-bridge ros-iron-foxglove-msgs
 
 ENTRYPOINT ["sh", "-c", ". /opt/ros/iron/local_setup.sh && . /root/ros_ws_aux/install/local_setup.sh && ros2 launch foxglove_bridge foxglove_bridge_launch.xml"]
