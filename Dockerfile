@@ -11,7 +11,7 @@ ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 ENV ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends openssh-server xauth build-essential libboost-all-dev python3-colcon-common-extensions git cmake zip g++ software-properties-common gdb wget python3-pip debconf python3 python3-setuptools ros-$ROS_DISTRO-rmw-cyclonedds-cpp
+    apt-get install -y --no-install-recommends openssh-server xauth build-essential libboost-all-dev python3-colcon-common-extensions git cmake zip g++ software-properties-common gdb wget python3-pip debconf python3 python3-setuptools ros-$ROS_DISTRO-rmw-cyclonedds-cpp ros-$ROS_DISTRO-foxglove-msgs
 
 RUN rosdep update --include-eol-distros && \
     echo 'source /opt/ros/$ROS_DISTRO/local_setup.bash' >> /root/.bashrc
@@ -59,7 +59,7 @@ ENTRYPOINT ["sh", "-c", ". /opt/ros/$ROS_DISTRO/local_setup.sh && . /root/ros_ws
 FROM sut-te-bridge_base AS sut-te-bridge_foxglove
 # Install Foxglove bridge 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends ros-$ROS_DISTRO-foxglove-bridge ros-$ROS_DISTRO-foxglove-msgs
+    apt-get install -y --no-install-recommends ros-$ROS_DISTRO-foxglove-bridge
 
 ENTRYPOINT ["sh", "-c", ". /opt/ros/$ROS_DISTRO/local_setup.sh && . /root/ros_ws_aux/install/local_setup.sh && ros2 launch foxglove_bridge foxglove_bridge_launch.xml"]
 
