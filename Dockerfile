@@ -61,7 +61,7 @@ FROM sut-te-bridge_base AS sut-te-bridge_foxglove
 RUN apt-get update && \
     apt-get install -y --no-install-recommends ros-$ROS_DISTRO-foxglove-bridge
 
-ENTRYPOINT ["sh", "-c", ". /opt/ros/$ROS_DISTRO/setup.bash && . /opt/race_common/install/setup.bash && . /root/ros_ws_aux/install/setup.bash && ros2 launch foxglove_bridge foxglove_bridge_launch.xml"]
+ENTRYPOINT ["bash", "-c", ". /opt/ros/$ROS_DISTRO/setup.bash && . /opt/race_common/install/setup.bash && . /root/ros_ws_aux/install/setup.bash && ros2 launch foxglove_bridge foxglove_bridge_launch.xml"]
 
 FROM sut-te-bridge_base AS sut-te-bridge_art
 
