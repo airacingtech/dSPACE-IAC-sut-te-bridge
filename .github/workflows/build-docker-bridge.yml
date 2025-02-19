@@ -74,6 +74,8 @@ jobs:
             default=${{ env.SSH_AUTH_SOCK }}
           cache-from: type=local,src=/tmp/.buildx-cache-${{ matrix.SAVE_NAME }}
           cache-to: type=local,dest=/tmp/.buildx-cache-new-${{ matrix.SAVE_NAME }},mode=max
+          build-args: |
+            BASE_IMAGE=${{ matrix.BASE_IMAGE }}
           target: sut-te-bridge_simphera
       - name: Delete old cache
         run: |
@@ -107,6 +109,8 @@ jobs:
             default=${{ env.SSH_AUTH_SOCK }}
           cache-from: type=local,src=/tmp/.buildx-cache-${{ matrix.FOXGLOVE_NAME }}
           cache-to: type=local,dest=/tmp/.buildx-cache-new-${{ matrix.FOXGLOVE_NAME }},mode=max
+          build-args: |
+            BASE_IMAGE=${{ matrix.BASE_IMAGE }}
           target: sut-te-bridge_foxglove
       - name: Delete old cache Foxglove
         run: |
@@ -140,6 +144,8 @@ jobs:
             default=${{ env.SSH_AUTH_SOCK }}
           cache-from: type=local,src=/tmp/.buildx-cache-${{ matrix.RACE_COMMON_NAME }}
           cache-to: type=local,dest=/tmp/.buildx-cache-new-${{ matrix.RACE_COMMON_NAME }},mode=max
+          build-args: |
+            BASE_IMAGE=${{ matrix.BASE_IMAGE }}
           target: sut-te-bridge_art
       - name: Delete old cache Race Common
         run: |
