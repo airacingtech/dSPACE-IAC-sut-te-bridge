@@ -17,7 +17,7 @@ jobs:
           - SAVE_NAME: art_ros_iron_sut_te_bridge
             FOXGLOVE_NAME: art_ros_iron_sut_te_bridge_foxglove_bridge
             RACE_COMMON_NAME: art_ros_iron_sut_te_bridge_race_common
-            BASE_IMAGE: ros:iron-ros-base
+            BASE_IMAGE: docker pull ghcr.io/airacingtech/art_ros_iron_cpu-built-dspace:moises_dspace
             DOCKERFILE: Dockerfile 
     outputs:
       image_name: ${{ steps.save_image_name.outputs.image_name }}
