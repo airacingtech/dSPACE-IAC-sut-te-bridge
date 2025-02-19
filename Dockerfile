@@ -1,9 +1,10 @@
-FROM ghcr.io/airacingtech/art_ros_iron_cpu-built-svl:stable AS dspace_ros_base
+ARG BASE_IMAGE
+FROM $BASE_IMAGE AS dspace_ros_base
 # Adds all dspace specific dependencies to a ros iron base image
 SHELL ["/bin/bash", "-c"]
 ENTRYPOINT ["tail", "-f", "/dev/null"]
 
-ENV LD_LIBRARY_PATH=/opt/VESI/lib
+ENV LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/VESI/lib
 ENV SIM_CLOCK_MODE=false
 ENV ENABLE_LOG=false
 ENV ROS_DISTRO=iron
