@@ -3,9 +3,11 @@ name: AI Racing Tech  dSpace IAC sut-te-brige Docker
 on:
     workflow_dispatch:
     push:
-      branches: [ "main", "moises/devel" ]
+      branches: [ "art-iron", "moises/devel" ]
     pull_request:
-      branches: [ "main" ]
+      branches: [ "art-iron" ]
+    repository_dispatch:
+      types: [trigger-dspace-workflow]
 
 jobs:
   build-push:
