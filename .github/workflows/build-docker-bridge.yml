@@ -23,8 +23,13 @@ jobs:
             BASE_IMAGE_TAG: ${{ github.event.client_payload.branch || 'moises_dspace' }}
             DOCKERFILE: Dockerfile 
     outputs:
-      image_name: ${{ steps.save_image_name.outputs.image_name }}
-      cache_name: ${{ steps.save_image_name.outputs.cache_name }}
+      bridge_image_name: ${{ steps.save_image_name.outputs.image_name }}
+      bridge_cache_name: ${{ steps.save_image_name.outputs.cache_name }}
+      foxglove_image_name: ${{ steps.save_image_name_foxglove.outputs.image_name }}
+      foxglove_cache_name: ${{ steps.save_image_name_foxglove.outputs.cache_name }}
+      race_common_image_name: ${{ steps.save_image_name_race_common.outputs.image_name }}
+      race_common_cache_name: ${{ steps.save_image_name_race_common.outputs.cache_name }}
+      branch_name: ${{ steps.save_image_name.outputs.bridge_name }}
       tag_name: ${{ steps.save_image_name.outputs.tag_name }}
     steps:
       - name: Check out the repo
@@ -163,3 +168,54 @@ jobs:
           echo "cache_name=${{ matrix.RACE_COMMON_NAME }}" >> $GITHUB_OUTPUT
           echo "tag_name=${{ matrix.BASE_IMAGE_TAG }}" >> $GITHUB_OUTPUT
           echo "bridge_name=${{ steps.get-ref.outputs.tag }}" >> $GITHUB_OUTPUT
+  aws-push:
+    runs-on: ubuntu-latest
+    needs: [build-push]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - TEAM_NAME: ai-racing
+            BRIDGE_REPO: bridge
+            FOXGLOVE_REPO: foxglove
+            RACE_COMMON_REPO: art_driving_stack
+            IMAGE_TAG: ${{ needs.build-push.outputs.tag_name }}
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: airacingtechba
+          password: ${{ secrets.PAT }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@0e613a0980cbf65ed5b322eb7a1e075d28913a83
+        with:
+          aws-access-key-id: ${{ secrets.DSPACE_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.DSPACE_AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1 # dSPACE aws-region
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@62f4f872db3836360b72999f4b87f1ff13310f3a
+      - name: Pull, tag, and push image to Amazon ECR
+        id: pull-push-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          # Pull docker images and push it to ECR
+          docker pull ${{ needs.build-push.outputs.bridge_image_name }}
+          docker tag ${{ needs.build-push.outputs.bridge_image_name }} $ECR_REGISTRY/${{ matrix.TEAM_NAME }}/${{ matrix.BRIDGE_REPO }}:${{ matrix.IMAGE_TAG }}
+          docker push $ECR_REGISTRY/${{ matrix.TEAM_NAME }}/${{ matrix.BRIDGE_REPO }}:${{ matrix.IMAGE_TAG }}
+
+          docker pull ${{ needs.build-push.outputs.foxglove_image_name }}
+          docker tag ${{ needs.build-push.outputs.foxglove_image_name }} $ECR_REGISTRY/${{ matrix.TEAM_NAME }}/${{ matrix.FOXGLOVE_REPO }}:${{ matrix.IMAGE_TAG }}
+          docker push $ECR_REGISTRY/${{ matrix.TEAM_NAME }}/${{ matrix.FOXGLOVE_REPO }}:${{ matrix.IMAGE_TAG }}
+
+          docker pull ${{ needs.build-push.outputs.race_common_image_name }}
+          docker tag ${{ needs.build-push.outputs.race_common_image_name }} $ECR_REGISTRY/${{ matrix.TEAM_NAME }}/${{ matrix.RACE_COMMON_REPO }}:${{ matrix.IMAGE_TAG }}
+          docker push $ECR_REGISTRY/${{ matrix.TEAM_NAME }}/${{ matrix.RACE_COMMON_REPO }}:${{ matrix.IMAGE_TAG }}
