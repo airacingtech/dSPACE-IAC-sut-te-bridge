@@ -179,7 +179,7 @@ jobs:
             BRIDGE_REPO: bridge
             FOXGLOVE_REPO: foxglove
             RACE_COMMON_REPO: art_driving_stack
-            IMAGE_TAG: ${{ needs.build-push.outputs.tag_name }}
+            IMAGE_TAG: ${{ needs.build-push.outputs.tag_name || 'moises_dspace' }}
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
