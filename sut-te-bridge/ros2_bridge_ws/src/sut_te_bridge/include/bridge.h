@@ -34,8 +34,8 @@
 #include "vectornav_msgs/msg/ins_group.hpp"
 #include "vectornav_msgs/msg/time_group.hpp"
 
-#include "novatel_oem7_msgs/msg/bestpos.hpp"
-#include "novatel_oem7_msgs/msg/bestvel.hpp"
+#include "novatel_oem7_msgs/msg/bestgnsspos.hpp"
+#include "novatel_oem7_msgs/msg/bestgnssvel.hpp"
 #include "novatel_oem7_msgs/msg/inspva.hpp"
 #include "novatel_oem7_msgs/msg/heading2.hpp"
 #include "novatel_oem7_msgs/msg/rawimu.hpp"
@@ -77,28 +77,28 @@ namespace bridge
 
         rclcpp::Publisher<vectornav_msgs::msg::GpsGroup>::SharedPtr verctorNavGpsGroupPublisher;
 
-        rclcpp::Publisher<novatel_oem7_msgs::msg::BESTPOS>::SharedPtr novaTelBestPosPublisher;
-        rclcpp::Publisher<novatel_oem7_msgs::msg::BESTPOS>::SharedPtr novaTelBestGNSSPosPublisher;
-        rclcpp::Publisher<novatel_oem7_msgs::msg::BESTVEL>::SharedPtr novaTelBestVelPublisher;
-        rclcpp::Publisher<novatel_oem7_msgs::msg::BESTVEL>::SharedPtr novaTelBestGNSSVelPublisher;
+        rclcpp::Publisher<novatel_oem7_msgs::msg::BESTGNSSPOS>::SharedPtr novaTelBestPosPublisher;
+        rclcpp::Publisher<novatel_oem7_msgs::msg::BESTGNSSPOS>::SharedPtr novaTelBestGNSSPosPublisher;
+        rclcpp::Publisher<novatel_oem7_msgs::msg::BESTGNSSVEL>::SharedPtr novaTelBestVelPublisher;
+        rclcpp::Publisher<novatel_oem7_msgs::msg::BESTGNSSVEL>::SharedPtr novaTelBestGNSSVelPublisher;
         rclcpp::Publisher<novatel_oem7_msgs::msg::INSPVA>::SharedPtr novaTelInspvaPublisher;
         rclcpp::Publisher<novatel_oem7_msgs::msg::HEADING2>::SharedPtr novaTelHeading2Publisher;
         rclcpp::Publisher<novatel_oem7_msgs::msg::RAWIMU>::SharedPtr novaTelRawImuPublisher;
         rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr novaTelRawImuXPublisher;
 
-        rclcpp::Publisher<novatel_oem7_msgs::msg::BESTPOS>::SharedPtr novaTelBestPosPublisher1_;
-        rclcpp::Publisher<novatel_oem7_msgs::msg::BESTPOS>::SharedPtr novaTelBestGNSSPosPublisher1_;
-        rclcpp::Publisher<novatel_oem7_msgs::msg::BESTVEL>::SharedPtr novaTelBestVelPublisher1_;
-        rclcpp::Publisher<novatel_oem7_msgs::msg::BESTVEL>::SharedPtr novaTelBestGNSSVelPublisher1_;
+        rclcpp::Publisher<novatel_oem7_msgs::msg::BESTGNSSPOS>::SharedPtr novaTelBestPosPublisher1_;
+        rclcpp::Publisher<novatel_oem7_msgs::msg::BESTGNSSPOS>::SharedPtr novaTelBestGNSSPosPublisher1_;
+        rclcpp::Publisher<novatel_oem7_msgs::msg::BESTGNSSVEL>::SharedPtr novaTelBestVelPublisher1_;
+        rclcpp::Publisher<novatel_oem7_msgs::msg::BESTGNSSVEL>::SharedPtr novaTelBestGNSSVelPublisher1_;
         rclcpp::Publisher<novatel_oem7_msgs::msg::INSPVA>::SharedPtr novaTelInspvaPublisher1_;
         rclcpp::Publisher<novatel_oem7_msgs::msg::HEADING2>::SharedPtr novaTelHeading2Publisher1_;
         rclcpp::Publisher<novatel_oem7_msgs::msg::RAWIMU>::SharedPtr novaTelRawImuPublisher1_;
         rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr novaTelRawImuXPublisher1_;
 
-        rclcpp::Publisher<novatel_oem7_msgs::msg::BESTPOS>::SharedPtr novaTelBestPosPublisher2_;
-        rclcpp::Publisher<novatel_oem7_msgs::msg::BESTPOS>::SharedPtr novaTelBestGNSSPosPublisher2_;
-        rclcpp::Publisher<novatel_oem7_msgs::msg::BESTVEL>::SharedPtr novaTelBestVelPublisher2_;
-        rclcpp::Publisher<novatel_oem7_msgs::msg::BESTVEL>::SharedPtr novaTelBestGNSSVelPublisher2_;
+        rclcpp::Publisher<novatel_oem7_msgs::msg::BESTGNSSPOS>::SharedPtr novaTelBestPosPublisher2_;
+        rclcpp::Publisher<novatel_oem7_msgs::msg::BESTGNSSPOS>::SharedPtr novaTelBestGNSSPosPublisher2_;
+        rclcpp::Publisher<novatel_oem7_msgs::msg::BESTGNSSVEL>::SharedPtr novaTelBestVelPublisher2_;
+        rclcpp::Publisher<novatel_oem7_msgs::msg::BESTGNSSVEL>::SharedPtr novaTelBestGNSSVelPublisher2_;
         rclcpp::Publisher<novatel_oem7_msgs::msg::INSPVA>::SharedPtr novaTelInspvaPublisher2_;
         rclcpp::Publisher<novatel_oem7_msgs::msg::HEADING2>::SharedPtr novaTelHeading2Publisher2_;
         rclcpp::Publisher<novatel_oem7_msgs::msg::RAWIMU>::SharedPtr novaTelRawImuPublisher2_;
