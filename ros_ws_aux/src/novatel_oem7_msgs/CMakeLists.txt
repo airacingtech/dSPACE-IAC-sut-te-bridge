@@ -47,6 +47,8 @@ set(MSG_FILES
   msg/SolutionSource.msg
   msg/Translation.msg
   msg/TranslationOffset.msg
+  msg/BESTGNSSPOS.msg
+  msg/BESTGNSSVEL.msg
 )
 
 rosidl_generate_interfaces(${PROJECT_NAME}
