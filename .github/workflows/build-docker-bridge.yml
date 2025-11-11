@@ -9,6 +9,10 @@ on:
     repository_dispatch:
       types: [ "trigger-dspace-workflow" ]
 
+concurrency:
+  group: bridge-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-push:
     runs-on: ubuntu-latest
