@@ -148,19 +148,19 @@ namespace bridge {
       this->verctorNavGpsGroupRightPublisher_ = this->create_publisher<vectornav_msgs::msg::GpsGroup>("vectornav/raw/gps_right", qos);
       this->verctorNavTimeGroupPublisher_ = this->create_publisher<vectornav_msgs::msg::TimeGroup>("vectornav/raw/time", qos);
 
-      this->novaTelBestPosPublisher1_ = this->create_publisher<novatel_oem7_msgs::msg::BESTGNSSPOS>("novatel_top/bestpos", qos);
-      this->novaTelBestGNSSPosPublisher1_ = this->create_publisher<novatel_oem7_msgs::msg::BESTGNSSPOS>("novatel_top/bestgnsspos", qos);
-      this->novaTelBestVelPublisher1_ = this->create_publisher<novatel_oem7_msgs::msg::BESTGNSSVEL>("novatel_top/bestvel", qos);
-      this->novaTelBestGNSSVelPublisher1_ = this->create_publisher<novatel_oem7_msgs::msg::BESTGNSSVEL>("novatel_top/bestgnssvel", qos);
+      this->novaTelBestPosPublisher1_ = this->create_publisher<novatel_oem7_msgs::msg::BESTPOS>("novatel_top/bestpos", qos);
+      this->novaTelBestGNSSPosPublisher1_ = this->create_publisher<novatel_oem7_msgs::msg::BESTPOS>("novatel_top/bestgnsspos", qos);
+      this->novaTelBestVelPublisher1_ = this->create_publisher<novatel_oem7_msgs::msg::BESTVEL>("novatel_top/bestvel", qos);
+      this->novaTelBestGNSSVelPublisher1_ = this->create_publisher<novatel_oem7_msgs::msg::BESTVEL>("novatel_top/bestgnssvel", qos);
       this->novaTelInspvaPublisher1_ = this->create_publisher<novatel_oem7_msgs::msg::INSPVA>("novatel_top/inspva", qos);
       this->novaTelHeading2Publisher1_ = this->create_publisher<novatel_oem7_msgs::msg::HEADING2>("novatel_top/heading2", qos);
       this->novaTelRawImuPublisher1_ = this->create_publisher<novatel_oem7_msgs::msg::RAWIMU>("novatel_top/rawimu", qos);
       this->novaTelRawImuXPublisher1_ = this->create_publisher<sensor_msgs::msg::Imu>("novatel_top/rawimux", qos);
 
-      this->novaTelBestPosPublisher2_ = this->create_publisher<novatel_oem7_msgs::msg::BESTGNSSPOS>("novatel_bottom/bestpos", qos);
-      this->novaTelBestGNSSPosPublisher2_ = this->create_publisher<novatel_oem7_msgs::msg::BESTGNSSPOS>("novatel_bottom/bestgnsspos", qos);
-      this->novaTelBestVelPublisher2_ = this->create_publisher<novatel_oem7_msgs::msg::BESTGNSSVEL>("novatel_bottom/bestvel", qos);
-      this->novaTelBestGNSSVelPublisher2_ = this->create_publisher<novatel_oem7_msgs::msg::BESTGNSSVEL>("novatel_bottom/bestgnssvel", qos);
+      this->novaTelBestPosPublisher2_ = this->create_publisher<novatel_oem7_msgs::msg::BESTPOS>("novatel_bottom/bestpos", qos);
+      this->novaTelBestGNSSPosPublisher2_ = this->create_publisher<novatel_oem7_msgs::msg::BESTPOS>("novatel_bottom/bestgnsspos", qos);
+      this->novaTelBestVelPublisher2_ = this->create_publisher<novatel_oem7_msgs::msg::BESTVEL>("novatel_bottom/bestvel", qos);
+      this->novaTelBestGNSSVelPublisher2_ = this->create_publisher<novatel_oem7_msgs::msg::BESTVEL>("novatel_bottom/bestgnssvel", qos);
       this->novaTelInspvaPublisher2_ = this->create_publisher<novatel_oem7_msgs::msg::INSPVA>("novatel_bottom/inspva", qos);
       this->novaTelHeading2Publisher2_ = this->create_publisher<novatel_oem7_msgs::msg::HEADING2>("novatel_bottom/heading2", qos);
       this->novaTelRawImuPublisher2_ = this->create_publisher<novatel_oem7_msgs::msg::RAWIMU>("novatel_bottom/rawimu", qos);
@@ -1460,7 +1460,7 @@ namespace bridge {
     }
     
     // Best Pos
-    auto bestPos = novatel_oem7_msgs::msg::BESTGNSSPOS();
+    auto bestPos = novatel_oem7_msgs::msg::BESTPOS();
 
     bestPos.nov_header.message_name = currentNovatel.best_pos_var.nov_header_var.message_name[0];
     bestPos.nov_header.message_id = currentNovatel.best_pos_var.nov_header_var.message_id;
@@ -1520,7 +1520,7 @@ namespace bridge {
     this->novaTelBestGNSSPosPublisher->publish(bestPos);
     
     // Best Vel
-    auto bestVel = novatel_oem7_msgs::msg::BESTGNSSVEL();
+    auto bestVel = novatel_oem7_msgs::msg::BESTVEL();
 
     bestVel.nov_header.message_name = currentNovatel.best_vel_var.nov_header_var.message_name[0];
     bestVel.nov_header.message_id = currentNovatel.best_vel_var.nov_header_var.message_id;
