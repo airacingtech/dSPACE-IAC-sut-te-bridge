@@ -25,6 +25,7 @@ find_package(npc_controller_msgs REQUIRED)
 find_package(foxglove_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(rosgraph_msgs REQUIRED)
+find_package(tf2 REQUIRED)
 
 set(MSG_DEPS std_msgs)
 set(MSG_DEPS sensor_msgs)
@@ -51,6 +52,7 @@ set(dependencies
   npc_controller_msgs
   foxglove_msgs
   rosgraph_msgs
+  tf2
 )
 
 install(DIRECTORY include/
