@@ -58,8 +58,15 @@ jobs:
         with:
           ref: ${{ github.ref }}
           head_ref: ${{ github.head_ref || github.event.client_payload.branch }}
-      - name: Export image tag
-        run: echo "IMAGE_TAG=${{ steps.get-ref.outputs.tag }}" >> $GITHUB_ENV
+      - name: Export image tags
+        run: |
+          echo "IMAGE_TAG=${{ steps.get-ref.outputs.tag }}" >> $GITHUB_ENV
+          BASE_TAG="${{ github.event.client_payload.base_image_tag || github.event.client_payload.branch || 'art-iron' }}"
+          if [ -z "$BASE_TAG" ]; then
+            BASE_TAG="art-iron"
+          fi
+          BASE_TAG="${BASE_TAG//\//_}"
+          echo "BASE_IMAGE_TAG=$BASE_TAG" >> $GITHUB_ENV
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@v1.3.1
         with:
@@ -88,7 +95,7 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache-${{ matrix.SAVE_NAME }}
           cache-to: type=local,dest=/tmp/.buildx-cache-new-${{ matrix.SAVE_NAME }},mode=max
           build-args: |
-            BASE_IMAGE=${{ matrix.BASE_IMAGE }}:${{ env.IMAGE_TAG }}
+            BASE_IMAGE=${{ matrix.BASE_IMAGE }}:${{ env.BASE_IMAGE_TAG }}
           target: sut-te-bridge_simphera
       - name: Delete old cache
         run: |
@@ -124,7 +131,7 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache-${{ matrix.FOXGLOVE_NAME }}
           cache-to: type=local,dest=/tmp/.buildx-cache-new-${{ matrix.FOXGLOVE_NAME }},mode=max
           build-args: |
-            BASE_IMAGE=${{ matrix.BASE_IMAGE }}:${{ env.IMAGE_TAG }}
+            BASE_IMAGE=${{ matrix.BASE_IMAGE }}:${{ env.BASE_IMAGE_TAG }}
           target: sut-te-bridge_foxglove
       - name: Delete old cache Foxglove
         run: |
@@ -160,7 +167,7 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache-${{ matrix.RACE_COMMON_NAME }}
           cache-to: type=local,dest=/tmp/.buildx-cache-new-${{ matrix.RACE_COMMON_NAME }},mode=max
           build-args: |
-            BASE_IMAGE=${{ matrix.BASE_IMAGE }}:${{ env.IMAGE_TAG }}
+            BASE_IMAGE=${{ matrix.BASE_IMAGE }}:${{ env.BASE_IMAGE_TAG }}
           target: sut-te-bridge_art
       - name: Delete old cache Race Common
         run: |
