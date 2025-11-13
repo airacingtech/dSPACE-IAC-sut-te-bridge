@@ -57,16 +57,7 @@ jobs:
         uses: sisaha9/ref-to-tag-action@v2
         with:
           ref: ${{ github.ref }}
-          head_ref: ${{ github.head_ref || github.event.client_payload.branch }}
-      - name: Export image tags
-        run: |
-          echo "IMAGE_TAG=${{ steps.get-ref.outputs.tag }}" >> $GITHUB_ENV
-          BASE_TAG="${{ github.event.client_payload.base_image_tag || github.event.client_payload.branch || 'art-iron' }}"
-          if [ -z "$BASE_TAG" ]; then
-            BASE_TAG="art-iron"
-          fi
-          BASE_TAG="${BASE_TAG//\//_}"
-          echo "BASE_IMAGE_TAG=$BASE_TAG" >> $GITHUB_ENV
+          head_ref: ${{ github.head_ref }}
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@v1.3.1
         with:
@@ -89,13 +80,13 @@ jobs:
           pull: true
           push: true
           tags: |
-            ghcr.io/airacingtech/${{ matrix.SAVE_NAME }}:${{ env.IMAGE_TAG }}
+            ghcr.io/airacingtech/${{ matrix.SAVE_NAME }}:${{ steps.get-ref.outputs.tag }}
           ssh: |
             default=${{ env.SSH_AUTH_SOCK }}
           cache-from: type=local,src=/tmp/.buildx-cache-${{ matrix.SAVE_NAME }}
           cache-to: type=local,dest=/tmp/.buildx-cache-new-${{ matrix.SAVE_NAME }},mode=max
           build-args: |
-            BASE_IMAGE=${{ matrix.BASE_IMAGE }}:${{ env.BASE_IMAGE_TAG }}
+            BASE_IMAGE=${{ matrix.BASE_IMAGE }}:${{ steps.get-ref.outputs.tag }}
           target: sut-te-bridge_simphera
       - name: Delete old cache
         run: |
@@ -104,9 +95,9 @@ jobs:
       - name: Save image name to Github Output
         id: save_image_name
         run: |
-          echo "image_name=ghcr.io/airacingtech/${{ matrix.SAVE_NAME }}:${{ env.IMAGE_TAG }}" >> $GITHUB_OUTPUT
+          echo "image_name=ghcr.io/airacingtech/${{ matrix.SAVE_NAME }}:${{ steps.get-ref.outputs.tag }}" >> $GITHUB_OUTPUT
           echo "cache_name=${{ matrix.SAVE_NAME }}" >> $GITHUB_OUTPUT
-          echo "tag_name=${{ env.IMAGE_TAG }}" >> $GITHUB_OUTPUT
+          echo "tag_name=${{ steps.get-ref.outputs.tag }}" >> $GITHUB_OUTPUT
           echo "bridge_name=${{ steps.get-ref.outputs.tag }}" >> $GITHUB_OUTPUT
       - name: Cache Docker layers Foxglove
         uses: actions/cache@v4
@@ -125,13 +116,13 @@ jobs:
           pull: true
           push: true
           tags: |
-            ghcr.io/airacingtech/${{ matrix.FOXGLOVE_NAME }}:${{ env.IMAGE_TAG }}
+            ghcr.io/airacingtech/${{ matrix.FOXGLOVE_NAME }}:${{ steps.get-ref.outputs.tag }}
           ssh: |
             default=${{ env.SSH_AUTH_SOCK }}
           cache-from: type=local,src=/tmp/.buildx-cache-${{ matrix.FOXGLOVE_NAME }}
           cache-to: type=local,dest=/tmp/.buildx-cache-new-${{ matrix.FOXGLOVE_NAME }},mode=max
           build-args: |
-            BASE_IMAGE=${{ matrix.BASE_IMAGE }}:${{ env.BASE_IMAGE_TAG }}
+            BASE_IMAGE=${{ matrix.BASE_IMAGE }}:${{ steps.get-ref.outputs.tag }}
           target: sut-te-bridge_foxglove
       - name: Delete old cache Foxglove
         run: |
@@ -140,9 +131,9 @@ jobs:
       - name: Save image name to Github Output Foxglove
         id: save_image_name_foxglove
         run: |
-          echo "image_name=ghcr.io/airacingtech/${{ matrix.FOXGLOVE_NAME }}:${{ env.IMAGE_TAG }}" >> $GITHUB_OUTPUT
+          echo "image_name=ghcr.io/airacingtech/${{ matrix.FOXGLOVE_NAME }}:${{ steps.get-ref.outputs.tag }}" >> $GITHUB_OUTPUT
           echo "cache_name=${{ matrix.FOXGLOVE_NAME }}" >> $GITHUB_OUTPUT
-          echo "tag_name=${{ env.IMAGE_TAG }}" >> $GITHUB_OUTPUT
+          echo "tag_name=${{ steps.get-ref.outputs.tag }}" >> $GITHUB_OUTPUT
           echo "bridge_name=${{ steps.get-ref.outputs.tag }}" >> $GITHUB_OUTPUT
       - name: Cache Docker layers Race Common
         uses: actions/cache@v4
@@ -161,13 +152,13 @@ jobs:
           pull: true
           push: true
           tags: |
-            ghcr.io/airacingtech/${{ matrix.RACE_COMMON_NAME }}:${{ env.IMAGE_TAG }}
+            ghcr.io/airacingtech/${{ matrix.RACE_COMMON_NAME }}:${{ steps.get-ref.outputs.tag }}
           ssh: |
             default=${{ env.SSH_AUTH_SOCK }}
           cache-from: type=local,src=/tmp/.buildx-cache-${{ matrix.RACE_COMMON_NAME }}
           cache-to: type=local,dest=/tmp/.buildx-cache-new-${{ matrix.RACE_COMMON_NAME }},mode=max
           build-args: |
-            BASE_IMAGE=${{ matrix.BASE_IMAGE }}:${{ env.BASE_IMAGE_TAG }}
+            BASE_IMAGE=${{ matrix.BASE_IMAGE }}:${{ steps.get-ref.outputs.tag }}
           target: sut-te-bridge_art
       - name: Delete old cache Race Common
         run: |
@@ -176,9 +167,9 @@ jobs:
       - name: Save image name to Github Output Race Common
         id: save_image_name_race_common
         run: |
-          echo "image_name=ghcr.io/airacingtech/${{ matrix.RACE_COMMON_NAME }}:${{ env.IMAGE_TAG }}" >> $GITHUB_OUTPUT
+          echo "image_name=ghcr.io/airacingtech/${{ matrix.RACE_COMMON_NAME }}:${{ steps.get-ref.outputs.tag }}" >> $GITHUB_OUTPUT
           echo "cache_name=${{ matrix.RACE_COMMON_NAME }}" >> $GITHUB_OUTPUT
-          echo "tag_name=${{ env.IMAGE_TAG }}" >> $GITHUB_OUTPUT
+          echo "tag_name=${{ steps.get-ref.outputs.tag }}" >> $GITHUB_OUTPUT
           echo "bridge_name=${{ steps.get-ref.outputs.tag }}" >> $GITHUB_OUTPUT
   aws-push:
     runs-on: ubuntu-latest
