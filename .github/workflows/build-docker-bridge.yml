@@ -23,7 +23,7 @@ jobs:
           - SAVE_NAME: art_ros_iron_sut_te_bridge
             FOXGLOVE_NAME: art_ros_iron_sut_te_bridge_foxglove_bridge
             RACE_COMMON_NAME: art_ros_iron_sut_te_bridge_race_common
-            BASE_IMAGE: ghcr.io/airacingtech/art_ros_iron_cpu-built-dspace
+            BASE_IMAGE: ghcr.io/airacingtech/art_ros_iron_cpu-built-dspace:stable
             DOCKERFILE: Dockerfile 
     outputs:
       bridge_image_name: ${{ steps.save_image_name.outputs.image_name }}
@@ -86,7 +86,7 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache-${{ matrix.SAVE_NAME }}
           cache-to: type=local,dest=/tmp/.buildx-cache-new-${{ matrix.SAVE_NAME }},mode=max
           build-args: |
-            BASE_IMAGE=${{ matrix.BASE_IMAGE }}:${{ steps.get-ref.outputs.tag }}
+            BASE_IMAGE=${{ matrix.BASE_IMAGE }}
           target: sut-te-bridge_simphera
       - name: Delete old cache
         run: |
@@ -122,7 +122,7 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache-${{ matrix.FOXGLOVE_NAME }}
           cache-to: type=local,dest=/tmp/.buildx-cache-new-${{ matrix.FOXGLOVE_NAME }},mode=max
           build-args: |
-            BASE_IMAGE=${{ matrix.BASE_IMAGE }}:${{ steps.get-ref.outputs.tag }}
+            BASE_IMAGE=${{ matrix.BASE_IMAGE }}
           target: sut-te-bridge_foxglove
       - name: Delete old cache Foxglove
         run: |
@@ -158,7 +158,7 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache-${{ matrix.RACE_COMMON_NAME }}
           cache-to: type=local,dest=/tmp/.buildx-cache-new-${{ matrix.RACE_COMMON_NAME }},mode=max
           build-args: |
-            BASE_IMAGE=${{ matrix.BASE_IMAGE }}:${{ steps.get-ref.outputs.tag }}
+            BASE_IMAGE=${{ matrix.BASE_IMAGE }}
           target: sut-te-bridge_art
       - name: Delete old cache Race Common
         run: |
