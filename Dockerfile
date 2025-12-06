@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.4
 ARG BASE_IMAGE
 FROM $BASE_IMAGE AS dspace_ros_base
 # Adds all dspace specific dependencies to a ros iron base image
@@ -33,6 +34,15 @@ FROM dspace_ros_base AS sut-te-bridge_base
 # Build bridge message definitions to enable dev working environment
 RUN mkdir -p /root/ros_ws_aux
 COPY ros_ws_aux /root/ros_ws_aux
+
+# Add novatel + vectornav message packages ONLY
+RUN --mount=type=ssh cd /root/ros_ws_aux/src && \
+    git clone --depth 1 git@github.com:airacingtech/novatel_oem7_driver.git && \
+    mv novatel_oem7_driver/src/novatel_oem7_msgs . && \
+    rm -rf novatel_oem7_driver && \
+    git clone --depth 1 git@github.com:airacingtech/vectornav-rtcm.git && \
+    mv vectornav-rtcm/vectornav_msgs . && \
+    rm -rf vectornav-rtcm
 
 RUN source /opt/ros/$ROS_DISTRO/local_setup.bash && \
     rosdep install -i --from-path /root/ros_ws_aux/src --rosdistro $ROS_DISTRO -y && \
@@ -72,4 +82,7 @@ FROM sut-te-bridge_base AS sut-te-bridge_art
 
 WORKDIR /race_common
 ENTRYPOINT [ "tail", "-f", "/dev/null" ]
+
+
+
 
