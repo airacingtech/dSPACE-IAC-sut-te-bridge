@@ -142,11 +142,12 @@ namespace bridge {
 
       this->verctorNavCommonGroupPublisher_ = this->create_publisher<vectornav_msgs::msg::CommonGroup>("vectornav/raw/common", qos);
       this->verctorNavAttitudeGroupPublisher_ = this->create_publisher<vectornav_msgs::msg::AttitudeGroup>("vectornav/raw/attitude", qos);
-      this->verctorNavImuGroupPublisher_ = this->create_publisher<vectornav_msgs::msg::ImuGroup>("vectornav/raw/imu", qos);
+      this->verctorNavImuPublisher_ = this->create_publisher<sensor_msgs::msg::Imu>("vectornav/raw/imu", qos);
       this->verctorNavInsGroupPublisher_ = this->create_publisher<vectornav_msgs::msg::InsGroup>("vectornav/raw/ins", qos);
       this->verctorNavGpsGroupLeftPublisher_ = this->create_publisher<vectornav_msgs::msg::GpsGroup>("vectornav/raw/gps_left", qos);
       this->verctorNavGpsGroupRightPublisher_ = this->create_publisher<vectornav_msgs::msg::GpsGroup>("vectornav/raw/gps_right", qos);
       this->verctorNavTimeGroupPublisher_ = this->create_publisher<vectornav_msgs::msg::TimeGroup>("vectornav/raw/time", qos);
+      this->verctorNavImuGroupPublisher_ = this->create_publisher<vectornav_msgs::msg::ImuGroup>("vectornav/imu", qos);
 
       this->novaTelBestPosPublisher1_ = this->create_publisher<novatel_oem7_msgs::msg::BESTPOS>("novatel_top/bestpos", qos);
       this->novaTelBestGNSSPosPublisher1_ = this->create_publisher<novatel_oem7_msgs::msg::BESTPOS>("novatel_top/bestgnsspos", qos);
@@ -1034,6 +1035,7 @@ namespace bridge {
     auto gpsGroup = vectornav_msgs::msg::GpsGroup();
     auto insGroup = vectornav_msgs::msg::InsGroup();
     auto timeGroup = vectornav_msgs::msg::TimeGroup();
+    auto vectornavImu = sensor_msgs::msg::Imu();
 
     // Header
     attitudeGroup.header.frame_id = "vectornav";
@@ -1182,20 +1184,37 @@ namespace bridge {
 
     // Header
     imuGroup.header.frame_id = "imu_vectornav";
+    vectornavImu.header.frame_id = "imu_vectornav";
 
     if(this->simModeEnabled)
     {
       imuGroup.header.stamp.sec = this->sec;
       imuGroup.header.stamp.nanosec = this->nsec;
+      vectornavImu.header.stamp.sec = this->sec;
+      vectornavImu.header.stamp.nanosec = this->nsec;
     }
     else
     {
       imuGroup.header.stamp.sec = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()).time_since_epoch().count();
       imuGroup.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (imuGroup.header.stamp.sec*1000000000);
+      vectornavImu.header.stamp.sec = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+      vectornavImu.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (imuGroup.header.stamp.sec*1000000000);
     }
 
-    imuGroup.imustatus = this->canBus->sim_interface_var.vector_nav_vn1_var.imu_group_var.imustatus;
+    vectornavImu.orientation.w = this->canBus->sim_interface_var.vector_nav_vn1_var.attitude_group_var.quaternion_var.w;
+    vectornavImu.orientation.x = this->canBus->sim_interface_var.vector_nav_vn1_var.attitude_group_var.quaternion_var.x;
+    vectornavImu.orientation.y = this->canBus->sim_interface_var.vector_nav_vn1_var.attitude_group_var.quaternion_var.y;
+    vectornavImu.orientation.z = this->canBus->sim_interface_var.vector_nav_vn1_var.attitude_group_var.quaternion_var.z + 9.81;
 
+    vectornavImu.linear_acceleration.x = this->canBus->sim_interface_var.vector_nav_vn1_var.imu_group_var.accel_var.x;
+    vectornavImu.linear_acceleration.y = this->canBus->sim_interface_var.vector_nav_vn1_var.imu_group_var.accel_var.y;
+    vectornavImu.linear_acceleration.z = this->canBus->sim_interface_var.vector_nav_vn1_var.imu_group_var.accel_var.z;
+
+    vectornavImu.angular_velocity.x = this->canBus->sim_interface_var.vector_nav_vn1_var.imu_group_var.angularrate_var.x;
+    vectornavImu.angular_velocity.y = this->canBus->sim_interface_var.vector_nav_vn1_var.imu_group_var.angularrate_var.y;
+    vectornavImu.angular_velocity.z = this->canBus->sim_interface_var.vector_nav_vn1_var.imu_group_var.angularrate_var.z;
+    
+    imuGroup.imustatus = this->canBus->sim_interface_var.vector_nav_vn1_var.imu_group_var.imustatus;
     imuGroup.uncompmag.x = this->canBus->sim_interface_var.vector_nav_vn1_var.imu_group_var.uncompmag_var.x;
     imuGroup.uncompmag.y = this->canBus->sim_interface_var.vector_nav_vn1_var.imu_group_var.uncompmag_var.y;
     imuGroup.uncompmag.z = this->canBus->sim_interface_var.vector_nav_vn1_var.imu_group_var.uncompmag_var.z;
@@ -1239,6 +1258,7 @@ namespace bridge {
     imuGroup.sensat = this->canBus->sim_interface_var.vector_nav_vn1_var.imu_group_var.sensat;
 
     this->verctorNavImuGroupPublisher_->publish(imuGroup);
+    this->verctorNavImuPublisher_->publish(vectornavImu);
     
 
     for(int i=0;i<2;i++)
@@ -1751,5 +1771,6 @@ int main(int argc, char * argv[])
   }
   
 }
+
 
 
