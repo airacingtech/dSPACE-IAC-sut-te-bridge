@@ -8,6 +8,8 @@
 #include <vector>
 #include <fstream>
 #include <algorithm>
+#include <random>
+
 #include <tf2/LinearMath/Quaternion.h>
 
 #include "geometry_msgs/msg/transform_stamped.hpp"
@@ -52,6 +54,14 @@
 
 namespace bridge
 {
+
+static double noise(double stddev = 0.1)
+{
+    static thread_local std::mt19937 gen(std::random_device{}());
+    static thread_local std::normal_distribution<double> dist(0.0, 1.0);
+    return dist(gen) * stddev;
+}
+
     class SutTeBridgeNode : public rclcpp::Node
     {
 
@@ -198,3 +208,4 @@ namespace bridge
     };
 
 }
+
