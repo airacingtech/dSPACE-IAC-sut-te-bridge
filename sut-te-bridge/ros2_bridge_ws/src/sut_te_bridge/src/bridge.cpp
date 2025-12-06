@@ -1036,7 +1036,7 @@ namespace bridge {
     auto timeGroup = vectornav_msgs::msg::TimeGroup();
 
     // Header
-    attitudeGroup.header.frame_id = "world";
+    attitudeGroup.header.frame_id = "vectornav";
 
     if(this->simModeEnabled)
     {
@@ -1101,7 +1101,7 @@ namespace bridge {
     this->verctorNavAttitudeGroupPublisher_->publish(attitudeGroup);
 
     // Header
-    commonGroup.header.frame_id = "world";
+    commonGroup.header.frame_id = "vectornav";
 
     if(this->simModeEnabled)
     {
@@ -1181,7 +1181,7 @@ namespace bridge {
     this->verctorNavCommonGroupPublisher_->publish(commonGroup);
 
     // Header
-    imuGroup.header.frame_id = "ego";
+    imuGroup.header.frame_id = "imu_vectornav";
 
     if(this->simModeEnabled)
     {
@@ -1260,7 +1260,7 @@ namespace bridge {
       }
       
       // Header
-      gpsGroup.header.frame_id = "world";
+      gpsGroup.header.frame_id = "vectornav";
 
       if(this->simModeEnabled)
       {
@@ -1324,7 +1324,7 @@ namespace bridge {
     }
     
     // Header
-    insGroup.header.frame_id = "world";
+    insGroup.header.frame_id = "vectornav";
 
     if(this->simModeEnabled)
     {
@@ -1336,7 +1336,7 @@ namespace bridge {
       insGroup.header.stamp.sec = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()).time_since_epoch().count();
       insGroup.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (insGroup.header.stamp.sec*1000000000);
     }
-
+    insGroup.insstatus.mode = 2;
     insGroup.insstatus.gps_fix = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.insstatus_var.gps_fix;
     insGroup.insstatus.time_error = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.insstatus_var.time_error;
     insGroup.insstatus.imu_error = this->canBus->sim_interface_var.vector_nav_vn1_var.ins_group_var.insstatus_var.imu_error;
@@ -1383,7 +1383,7 @@ namespace bridge {
     this->verctorNavInsGroupPublisher_->publish(insGroup);
     
     // Header
-    timeGroup.header.frame_id = "";
+    timeGroup.header.frame_id = "vectornav";
     
     if(this->simModeEnabled)
     {
@@ -1751,4 +1751,5 @@ int main(int argc, char * argv[])
   }
   
 }
+
 
