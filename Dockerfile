@@ -38,7 +38,7 @@ COPY ros_ws_aux /root/ros_ws_aux
 # Add novatel + vectornav message packages ONLY
 RUN --mount=type=ssh cd /root/ros_ws_aux/src && \
     git clone --depth 1 git@github.com:airacingtech/novatel_oem7_driver.git && \
-    mv novatel_oem7_driver/novatel_oem7_msgs . && \
+    mv novatel_oem7_driver/src/novatel_oem7_msgs . && \
     rm -rf novatel_oem7_driver && \
     git clone --depth 1 git@github.com:airacingtech/vectornav-rtcm.git && \
     mv vectornav-rtcm/vectornav_msgs . && \
@@ -82,6 +82,7 @@ FROM sut-te-bridge_base AS sut-te-bridge_art
 
 WORKDIR /race_common
 ENTRYPOINT [ "tail", "-f", "/dev/null" ]
+
 
 
 
