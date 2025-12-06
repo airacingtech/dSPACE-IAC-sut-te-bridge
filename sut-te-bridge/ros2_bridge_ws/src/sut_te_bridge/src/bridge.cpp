@@ -1677,7 +1677,7 @@ namespace bridge {
     // Raw IMU
     auto rawImu = novatel_oem7_msgs::msg::RAWIMU();
 
-    rawImu.nov_header.message_name = currentNovatel.raw_imu_var.nov_header_var.message_name;
+    rawImu.nov_header.message_name = currentNovatel.raw_imu_var.nov_header_var.message_name[0];
     rawImu.nov_header.message_id = currentNovatel.raw_imu_var.nov_header_var.message_id;
     rawImu.nov_header.message_type = currentNovatel.raw_imu_var.nov_header_var.message_type;
     rawImu.nov_header.sequence_number = currentNovatel.raw_imu_var.nov_header_var.sequence_number;
@@ -1771,6 +1771,7 @@ int main(int argc, char * argv[])
   }
   
 }
+
 
 
 
