@@ -80,7 +80,7 @@ static double noise(double stddev = 0.1)
         rclcpp::Publisher<vectornav_msgs::msg::CommonGroup>::SharedPtr verctorNavCommonGroupPublisher_;
         rclcpp::Publisher<vectornav_msgs::msg::AttitudeGroup>::SharedPtr verctorNavAttitudeGroupPublisher_;
         rclcpp::Publisher<vectornav_msgs::msg::ImuGroup>::SharedPtr verctorNavImuGroupPublisher_;
-        rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr verctorNavImuPublisher_;
+        //rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr verctorNavImuPublisher_;
         rclcpp::Publisher<vectornav_msgs::msg::InsGroup>::SharedPtr verctorNavInsGroupPublisher_;
         rclcpp::Publisher<vectornav_msgs::msg::GpsGroup>::SharedPtr verctorNavGpsGroupLeftPublisher_;
         rclcpp::Publisher<vectornav_msgs::msg::GpsGroup>::SharedPtr verctorNavGpsGroupRightPublisher_;
@@ -208,4 +208,5 @@ static double noise(double stddev = 0.1)
     };
 
 }
+
 
