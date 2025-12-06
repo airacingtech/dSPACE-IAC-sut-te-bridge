@@ -1482,7 +1482,7 @@ namespace bridge {
     // Best Pos
     auto bestPos = novatel_oem7_msgs::msg::BESTPOS();
 
-    bestPos.nov_header.message_name = currentNovatel.best_pos_var.nov_header_var.message_name;
+    bestPos.nov_header.message_name = std::to_string(currentNovatel.best_pos_var.nov_header_var.message_name);
     bestPos.nov_header.message_id = currentNovatel.best_pos_var.nov_header_var.message_id;
     bestPos.nov_header.message_type = currentNovatel.best_pos_var.nov_header_var.message_type;
     bestPos.nov_header.sequence_number = currentNovatel.best_pos_var.nov_header_var.sequence_number;
@@ -1542,7 +1542,7 @@ namespace bridge {
     // Best Vel
     auto bestVel = novatel_oem7_msgs::msg::BESTVEL();
 
-    bestVel.nov_header.message_name = currentNovatel.best_vel_var.nov_header_var.message_name;
+    bestVel.nov_header.message_name = std::to_string(currentNovatel.best_vel_var.nov_header_var.message_name);
     bestVel.nov_header.message_id = currentNovatel.best_vel_var.nov_header_var.message_id;
     bestVel.nov_header.message_type = currentNovatel.best_vel_var.nov_header_var.message_type;
     bestVel.nov_header.sequence_number = currentNovatel.best_vel_var.nov_header_var.sequence_number;
@@ -1582,7 +1582,7 @@ namespace bridge {
     // Inspva
     auto inspva = novatel_oem7_msgs::msg::INSPVA();
 
-    inspva.nov_header.message_name = currentNovatel.inspava_var.nov_header_var.message_name;
+    inspva.nov_header.message_name = std::to_string(currentNovatel.inspava_var.nov_header_var.message_name);
     inspva.nov_header.message_id = currentNovatel.inspava_var.nov_header_var.message_id;
     inspva.nov_header.message_type = currentNovatel.inspava_var.nov_header_var.message_type;
     inspva.nov_header.sequence_number = currentNovatel.inspava_var.nov_header_var.sequence_number;
@@ -1622,7 +1622,7 @@ namespace bridge {
     // Heading 2
     auto heading2 = novatel_oem7_msgs::msg::HEADING2();
 
-    heading2.nov_header.message_name = currentNovatel.heading_2_var.nov_header_var.message_name;
+    heading2.nov_header.message_name = std::to_string(currentNovatel.heading_2_var.nov_header_var.message_name);
     heading2.nov_header.message_id = currentNovatel.heading_2_var.nov_header_var.message_id;
     heading2.nov_header.message_type = currentNovatel.heading_2_var.nov_header_var.message_type;
     heading2.nov_header.sequence_number = currentNovatel.heading_2_var.nov_header_var.sequence_number;
@@ -1634,8 +1634,8 @@ namespace bridge {
     heading2.sol_status.status = currentNovatel.heading_2_var.sol_status;
 
     heading2.pos_type.type = currentNovatel.heading_2_var.pos_type;
-
-    heading2.length = 1.9817;  // THIS IS THE EUCLIDEAN DISTANCE BETWEEN PRIMARY (FRONT) AND SECONDARY (REAR) AV24 ONLY
+    currentNovatel.heading_2_var.length = 1.9817; // THIS IS THE EUCLIDEAN DISTANCE BETWEEN PRIMARY (FRONT) AND SECONDARY (REAR) AV24 ONLY
+    heading2.length = currentNovatel.heading_2_var.length;  
     heading2.heading = currentNovatel.heading_2_var.heading;
     heading2.pitch = currentNovatel.heading_2_var.pitch;
     heading2.reserved = currentNovatel.heading_2_var.reserved;
@@ -1771,6 +1771,7 @@ int main(int argc, char * argv[])
   }
   
 }
+
 
 
 
