@@ -1,14 +1,14 @@
 # syntax=docker/dockerfile:1.4
 ARG BASE_IMAGE
 FROM $BASE_IMAGE AS dspace_ros_base
-# Adds all dspace specific dependencies to a ros iron base image
+# Adds all dspace specific dependencies to a ros jazzy base image
 SHELL ["/bin/bash", "-c"]
 ENTRYPOINT ["tail", "-f", "/dev/null"]
 
 ENV LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/VESI/lib
 ENV SIM_CLOCK_MODE=false
 ENV ENABLE_LOG=false
-ENV ROS_DISTRO=iron
+ENV ROS_DISTRO=jazzy
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 ENV ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET
 
