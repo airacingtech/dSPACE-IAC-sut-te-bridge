@@ -10,9 +10,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_C_STANDARD 99)
 
-include_directories(/opt/ros/iron/include/tf2)
-include_directories(/opt/ros/iron/include/tf2_ros)
-
 # find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
@@ -26,6 +23,7 @@ find_package(foxglove_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(rosgraph_msgs REQUIRED)
 find_package(tf2 REQUIRED)
+find_package(tf2_ros REQUIRED)
 
 set(MSG_DEPS std_msgs)
 set(MSG_DEPS sensor_msgs)
@@ -53,6 +51,7 @@ set(dependencies
   foxglove_msgs
   rosgraph_msgs
   tf2
+  tf2_ros
 )
 
 install(DIRECTORY include/

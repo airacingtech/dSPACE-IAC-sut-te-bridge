@@ -1,19 +1,16 @@
 # syntax=docker/dockerfile:1.4
 ARG BASE_IMAGE
 FROM $BASE_IMAGE AS dspace_ros_base
-# Adds all dspace specific dependencies to a ros iron base image
+# Adds all dspace specific dependencies to a ros jazzy base image
 SHELL ["/bin/bash", "-c"]
 ENTRYPOINT ["tail", "-f", "/dev/null"]
 
 ENV LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/VESI/lib
 ENV SIM_CLOCK_MODE=false
 ENV ENABLE_LOG=false
-ENV ROS_DISTRO=iron
+ENV ROS_DISTRO=jazzy
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 ENV ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET
-
-RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg && \
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends openssh-server xauth build-essential libboost-all-dev python3-colcon-common-extensions git cmake zip g++ software-properties-common gdb wget python3-pip debconf python3 python3-setuptools ros-$ROS_DISTRO-rmw-cyclonedds-cpp ros-$ROS_DISTRO-foxglove-msgs

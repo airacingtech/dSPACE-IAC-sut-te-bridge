@@ -3,9 +3,9 @@ name: AI Racing Tech  dSpace IAC sut-te-brige Docker
 on:
     workflow_dispatch:
     push:
-      branches: [ "art-iron" ]
+      branches: [ "art-jazzy" ]
     pull_request:
-      branches: [ "art-iron" ]
+      branches: [ "art-jazzy" ]
     repository_dispatch:
       types: [ "trigger-dspace-workflow" ]
 
@@ -23,7 +23,7 @@ jobs:
           - SAVE_NAME: art_dspace_bridge
             FOXGLOVE_NAME: art_dspace_foxglove
             RACE_COMMON_NAME: art_dspace_race_common
-            BASE_IMAGE: ghcr.io/airacingtech/art_ros_iron_cpu-built-dspace:stable
+            BASE_IMAGE: ghcr.io/airacingtech/art_ros_jazzy_cpu-built-dspace:stable
             DOCKERFILE: Dockerfile
     outputs:
       bridge_image_name: ${{ steps.save_image_name.outputs.image_name }}
