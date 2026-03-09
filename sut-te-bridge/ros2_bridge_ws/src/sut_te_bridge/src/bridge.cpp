@@ -1487,8 +1487,7 @@ namespace bridge {
     bestPos.nov_header.message_type = currentNovatel.best_pos_var.nov_header_var.message_type;
     bestPos.nov_header.sequence_number = currentNovatel.best_pos_var.nov_header_var.sequence_number;
     bestPos.nov_header.time_status = currentNovatel.best_pos_var.nov_header_var.time_status;
-    bestPos.nov_header.gps_week_number = currentNovatel.best_pos_var.nov_header_var.gps_week_number;
-    bestPos.nov_header.gps_week_milliseconds = currentNovatel.best_pos_var.nov_header_var.gps_week_milliseconds;
+    fromStamp(bestPos.header.stamp, bestPos.nov_header.gps_week_number, bestPos.nov_header.gps_week_milliseconds);
     bestPos.nov_header.idle_time = currentNovatel.best_pos_var.nov_header_var.idle_time;
 
     bestPos.sol_status.status = currentNovatel.best_pos_var.sol_status;
@@ -1547,8 +1546,7 @@ namespace bridge {
     bestVel.nov_header.message_type = currentNovatel.best_vel_var.nov_header_var.message_type;
     bestVel.nov_header.sequence_number = currentNovatel.best_vel_var.nov_header_var.sequence_number;
     bestVel.nov_header.time_status = currentNovatel.best_vel_var.nov_header_var.time_status;
-    bestVel.nov_header.gps_week_number = currentNovatel.best_vel_var.nov_header_var.gps_week_number;
-    bestVel.nov_header.gps_week_milliseconds = currentNovatel.best_vel_var.nov_header_var.gps_week_milliseconds;
+    fromStamp(bestVel.header.stamp, bestVel.nov_header.gps_week_number, bestVel.nov_header.gps_week_milliseconds);
     bestVel.nov_header.idle_time = currentNovatel.best_vel_var.nov_header_var.idle_time;
 
     bestVel.sol_status.status = currentNovatel.best_vel_var.sol_status;
@@ -1587,8 +1585,7 @@ namespace bridge {
     inspva.nov_header.message_type = currentNovatel.inspava_var.nov_header_var.message_type;
     inspva.nov_header.sequence_number = currentNovatel.inspava_var.nov_header_var.sequence_number;
     inspva.nov_header.time_status = currentNovatel.inspava_var.nov_header_var.time_status;
-    inspva.nov_header.gps_week_number = currentNovatel.inspava_var.nov_header_var.gps_week_number;
-    inspva.nov_header.gps_week_milliseconds = currentNovatel.inspava_var.nov_header_var.gps_week_milliseconds;
+    fromStamp(inspva.header.stamp, inspva.nov_header.gps_week_number, inspva.nov_header.gps_week_milliseconds);
     inspva.nov_header.idle_time = currentNovatel.inspava_var.nov_header_var.idle_time;
 
     inspva.latitude = currentNovatel.inspava_var.latitude;
@@ -1627,8 +1624,7 @@ namespace bridge {
     heading2.nov_header.message_type = currentNovatel.heading_2_var.nov_header_var.message_type;
     heading2.nov_header.sequence_number = currentNovatel.heading_2_var.nov_header_var.sequence_number;
     heading2.nov_header.time_status = currentNovatel.heading_2_var.nov_header_var.time_status;
-    heading2.nov_header.gps_week_number = currentNovatel.heading_2_var.nov_header_var.gps_week_number;
-    heading2.nov_header.gps_week_milliseconds = currentNovatel.heading_2_var.nov_header_var.gps_week_milliseconds;
+    fromStamp(heading2.header.stamp, heading2.nov_header.gps_week_number, heading2.nov_header.gps_week_milliseconds);
     heading2.nov_header.idle_time = currentNovatel.heading_2_var.nov_header_var.idle_time;
 
     heading2.sol_status.status = currentNovatel.heading_2_var.sol_status;

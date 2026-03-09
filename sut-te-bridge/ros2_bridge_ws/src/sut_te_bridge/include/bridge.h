@@ -54,6 +54,22 @@
 
 namespace bridge
 {
+    
+static void fromStamp(const builtin_interfaces::msg::Time& stamp,
+               uint16_t& gps_week, uint32_t& gps_week_ms)
+{
+    static constexpr int64_t GPS_EPOCH_UNIX       = 315964800;
+    static constexpr int64_t SECONDS_PER_WEEK     = 604800;
+    static constexpr int64_t GPS_UTC_LEAP_SECONDS = 18;
+
+    const int64_t gps_sec = static_cast<int64_t>(stamp.sec)
+                            - GPS_EPOCH_UNIX
+                            + GPS_UTC_LEAP_SECONDS;
+
+    gps_week    = static_cast<uint16_t>(gps_sec / SECONDS_PER_WEEK);
+    gps_week_ms = static_cast<uint32_t>((gps_sec % SECONDS_PER_WEEK) * 1000
+                  + static_cast<int64_t>(stamp.nanosec) / 1000000LL);
+}
 
 static double noise(double stddev = 0.1)
 {
