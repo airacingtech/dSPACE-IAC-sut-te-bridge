@@ -1483,7 +1483,7 @@ namespace bridge {
     
     // Best Pos
     auto bestPos = novatel_oem7_msgs::msg::BESTPOS();
-    bestPos.frame_id = frame_id;
+    bestPos.header.frame_id = frame_id;
     bestPos.nov_header.message_name = currentNovatel.best_pos_var.nov_header_var.message_name[0];
     bestPos.nov_header.message_id = currentNovatel.best_pos_var.nov_header_var.message_id;
     bestPos.nov_header.message_type = currentNovatel.best_pos_var.nov_header_var.message_type;
@@ -1538,7 +1538,7 @@ namespace bridge {
     
     // Best Vel
     auto bestVel = novatel_oem7_msgs::msg::BESTVEL();
-    bestVel.frame_id = frame_id;
+    bestVel.header.frame_id = frame_id;
     bestVel.nov_header.message_name = currentNovatel.best_vel_var.nov_header_var.message_name[0];
     bestVel.nov_header.message_id = currentNovatel.best_vel_var.nov_header_var.message_id;
     bestVel.nov_header.message_type = currentNovatel.best_vel_var.nov_header_var.message_type;
@@ -1574,7 +1574,7 @@ namespace bridge {
 
     // Inspva
     auto inspva = novatel_oem7_msgs::msg::INSPVA();
-    inspva.frame_id = frame_id;
+    inspva.header.frame_id = frame_id;
     inspva.nov_header.message_name = currentNovatel.inspava_var.nov_header_var.message_name[0];
     inspva.nov_header.message_id = currentNovatel.inspava_var.nov_header_var.message_id;
     inspva.nov_header.message_type = currentNovatel.inspava_var.nov_header_var.message_type;
@@ -1609,7 +1609,7 @@ namespace bridge {
 
     // Heading 2
     auto heading2 = novatel_oem7_msgs::msg::HEADING2();
-    heading2_frame_id = frame_id;
+    heading2.header.frame_id = frame_id;
     heading2.nov_header.message_name = currentNovatel.heading_2_var.nov_header_var.message_name[0];
     heading2.nov_header.message_id = currentNovatel.heading_2_var.nov_header_var.message_id;
     heading2.nov_header.message_type = currentNovatel.heading_2_var.nov_header_var.message_type;
@@ -1660,7 +1660,7 @@ namespace bridge {
 
     // Raw IMU
     auto rawImu = novatel_oem7_msgs::msg::RAWIMU();
-
+    
     rawImu.nov_header.message_name = currentNovatel.raw_imu_var.nov_header_var.message_name[0];
     rawImu.nov_header.message_id = currentNovatel.raw_imu_var.nov_header_var.message_id;
     rawImu.nov_header.message_type = currentNovatel.raw_imu_var.nov_header_var.message_type;
