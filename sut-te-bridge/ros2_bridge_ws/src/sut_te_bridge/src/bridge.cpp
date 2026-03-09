@@ -1449,10 +1449,11 @@ namespace bridge {
     }
     
     nova_tel_pwr_pak currentNovatel;
-    
+    std::string frame_id;
     if (novatelID == 1)
     {
       currentNovatel = this->canBus->sim_interface_var.nova_tel_pwr_pak1_var;
+      frame_id = "gps_antenna_left";
       this->novaTelBestPosPublisher = this->novaTelBestPosPublisher1_;
       this->novaTelBestGNSSPosPublisher = this->novaTelBestGNSSPosPublisher1_;
       this->novaTelBestVelPublisher = this->novaTelBestVelPublisher1_;
@@ -1465,6 +1466,7 @@ namespace bridge {
     else if (novatelID == 2)
     {
       currentNovatel = this->canBus->sim_interface_var.nova_tel_pwr_pak2_var;
+      frame_id = "gps_antenna_right";
       this->novaTelBestPosPublisher = this->novaTelBestPosPublisher2_;
       this->novaTelBestGNSSPosPublisher = this->novaTelBestGNSSPosPublisher2_;
       this->novaTelBestVelPublisher = this->novaTelBestVelPublisher2_;
@@ -1481,7 +1483,7 @@ namespace bridge {
     
     // Best Pos
     auto bestPos = novatel_oem7_msgs::msg::BESTPOS();
-
+    bestPos.frame_id = frame_id;
     bestPos.nov_header.message_name = currentNovatel.best_pos_var.nov_header_var.message_name[0];
     bestPos.nov_header.message_id = currentNovatel.best_pos_var.nov_header_var.message_id;
     bestPos.nov_header.message_type = currentNovatel.best_pos_var.nov_header_var.message_type;
@@ -1519,10 +1521,6 @@ namespace bridge {
 
     bestPos.galileo_beidou_sig_mask = currentNovatel.best_pos_var.galileo_beidou_sig_mask;
     bestPos.gps_glonass_sig_mask = currentNovatel.best_pos_var.gps_glonass_sig_mask;
-
-    // Header
-    bestPos.header.frame_id = "gps_antenna_front";
-
     if(this->simModeEnabled)
     {
       bestPos.header.stamp.sec = this->sec;
@@ -1534,12 +1532,13 @@ namespace bridge {
       bestPos.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (bestPos.header.stamp.sec*1000000000);
     }
     fromStamp(bestPos.header.stamp, bestPos.nov_header.gps_week_number, bestPos.nov_header.gps_week_milliseconds);
+    
     this->novaTelBestPosPublisher->publish(bestPos);
     this->novaTelBestGNSSPosPublisher->publish(bestPos);
     
     // Best Vel
     auto bestVel = novatel_oem7_msgs::msg::BESTVEL();
-
+    bestVel.frame_id = frame_id;
     bestVel.nov_header.message_name = currentNovatel.best_vel_var.nov_header_var.message_name[0];
     bestVel.nov_header.message_id = currentNovatel.best_vel_var.nov_header_var.message_id;
     bestVel.nov_header.message_type = currentNovatel.best_vel_var.nov_header_var.message_type;
@@ -1559,8 +1558,6 @@ namespace bridge {
     bestVel.reserved = currentNovatel.best_vel_var.reserved;
 
     // Header
-    bestVel.header.frame_id = "gps_antenna_front";
-
     if(this->simModeEnabled)
     {
       bestVel.header.stamp.sec = this->sec;
@@ -1577,7 +1574,7 @@ namespace bridge {
 
     // Inspva
     auto inspva = novatel_oem7_msgs::msg::INSPVA();
-
+    inspva.frame_id = frame_id;
     inspva.nov_header.message_name = currentNovatel.inspava_var.nov_header_var.message_name[0];
     inspva.nov_header.message_id = currentNovatel.inspava_var.nov_header_var.message_id;
     inspva.nov_header.message_type = currentNovatel.inspava_var.nov_header_var.message_type;
@@ -1597,9 +1594,6 @@ namespace bridge {
 
     inspva.status.status = currentNovatel.inspava_var.status_var.status_var;
 
-    // Header
-    inspva.header.frame_id = "gps_antenna_front";
-
     if(this->simModeEnabled)
     {
       inspva.header.stamp.sec = this->sec;
@@ -1615,7 +1609,7 @@ namespace bridge {
 
     // Heading 2
     auto heading2 = novatel_oem7_msgs::msg::HEADING2();
-
+    heading2_frame_id = frame_id;
     heading2.nov_header.message_name = currentNovatel.heading_2_var.nov_header_var.message_name[0];
     heading2.nov_header.message_id = currentNovatel.heading_2_var.nov_header_var.message_id;
     heading2.nov_header.message_type = currentNovatel.heading_2_var.nov_header_var.message_type;
@@ -1649,9 +1643,6 @@ namespace bridge {
     heading2.ext_sol_status.status = currentNovatel.heading_2_var.ext_sol_status;
     heading2.galileo_beidou_sig_mask = currentNovatel.heading_2_var.galileo_beidou_sig_mask;
     heading2.gps_glonass_sig_mask = currentNovatel.heading_2_var.gps_glonass_sig_mask;
-    
-    // Header
-    heading2.header.frame_id = "gps_antenna_front";
 
     if(this->simModeEnabled)
     {
