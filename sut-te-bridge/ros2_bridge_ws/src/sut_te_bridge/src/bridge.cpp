@@ -1449,11 +1449,13 @@ namespace bridge {
     }
     
     nova_tel_pwr_pak currentNovatel;
-    std::string frame_id;
+    std::string gps_frame;
+    std::string imu_frame;
     if (novatelID == 1)
     {
       currentNovatel = this->canBus->sim_interface_var.nova_tel_pwr_pak1_var;
-      frame_id = "gps_antenna_front";
+      gps_frame = "gps_antenna_front";
+      imu_frame = "imu_top";
       this->novaTelBestPosPublisher = this->novaTelBestPosPublisher1_;
       this->novaTelBestGNSSPosPublisher = this->novaTelBestGNSSPosPublisher1_;
       this->novaTelBestVelPublisher = this->novaTelBestVelPublisher1_;
@@ -1466,7 +1468,8 @@ namespace bridge {
     else if (novatelID == 2)
     {
       currentNovatel = this->canBus->sim_interface_var.nova_tel_pwr_pak2_var;
-      frame_id = "gps_antenna_right";
+      gps_frame = "gps_antenna_right";
+      imu_frame = "imu_bottom";
       this->novaTelBestPosPublisher = this->novaTelBestPosPublisher2_;
       this->novaTelBestGNSSPosPublisher = this->novaTelBestGNSSPosPublisher2_;
       this->novaTelBestVelPublisher = this->novaTelBestVelPublisher2_;
@@ -1483,7 +1486,7 @@ namespace bridge {
     
     // Best Pos
     auto bestPos = novatel_oem7_msgs::msg::BESTPOS();
-    bestPos.header.frame_id = frame_id;
+    bestPos.header.frame_id = gps_frame;
     bestPos.nov_header.message_name = currentNovatel.best_pos_var.nov_header_var.message_name[0];
     bestPos.nov_header.message_id = currentNovatel.best_pos_var.nov_header_var.message_id;
     bestPos.nov_header.message_type = currentNovatel.best_pos_var.nov_header_var.message_type;
@@ -1538,7 +1541,7 @@ namespace bridge {
     
     // Best Vel
     auto bestVel = novatel_oem7_msgs::msg::BESTVEL();
-    bestVel.header.frame_id = frame_id;
+    bestVel.header.frame_id = gps_frame;
     bestVel.nov_header.message_name = currentNovatel.best_vel_var.nov_header_var.message_name[0];
     bestVel.nov_header.message_id = currentNovatel.best_vel_var.nov_header_var.message_id;
     bestVel.nov_header.message_type = currentNovatel.best_vel_var.nov_header_var.message_type;
@@ -1574,7 +1577,7 @@ namespace bridge {
 
     // Inspva
     auto inspva = novatel_oem7_msgs::msg::INSPVA();
-    inspva.header.frame_id = frame_id;
+    inspva.header.frame_id = gps_frame;
     inspva.nov_header.message_name = currentNovatel.inspava_var.nov_header_var.message_name[0];
     inspva.nov_header.message_id = currentNovatel.inspava_var.nov_header_var.message_id;
     inspva.nov_header.message_type = currentNovatel.inspava_var.nov_header_var.message_type;
@@ -1609,7 +1612,7 @@ namespace bridge {
 
     // Heading 2
     auto heading2 = novatel_oem7_msgs::msg::HEADING2();
-    heading2.header.frame_id = frame_id;
+    heading2.header.frame_id = gps_frame;
     heading2.nov_header.message_name = currentNovatel.heading_2_var.nov_header_var.message_name[0];
     heading2.nov_header.message_id = currentNovatel.heading_2_var.nov_header_var.message_id;
     heading2.nov_header.message_type = currentNovatel.heading_2_var.nov_header_var.message_type;
@@ -1683,7 +1686,7 @@ namespace bridge {
     rawImu.angular_velocity.z = currentNovatel.raw_imu_var.angular_velocity_var.z;
 
     // Header
-    rawImu.header.frame_id = "novatel_imu";
+    rawImu.header.frame_id = imu_frame;
 
     if(this->simModeEnabled)
     {
@@ -1718,7 +1721,7 @@ namespace bridge {
     for (size_t i = 0; i < 9; i++) {rawImuX.linear_acceleration_covariance[i] = 0;}
 
     // Header
-    rawImuX.header.frame_id = "novatel_imu";
+    rawImuX.header.frame_id = imu_frame;
 
     if(this->simModeEnabled)
     {
