@@ -71,13 +71,6 @@ static void fromStamp(const builtin_interfaces::msg::Time& stamp,
                   + static_cast<int64_t>(stamp.nanosec) / 1000000LL);
 }
 
-static double noise(double stddev = 0.1)
-{
-    static thread_local std::mt19937 gen(std::random_device{}());
-    static thread_local std::normal_distribution<double> dist(0.0, 1.0);
-    return dist(gen) * stddev;
-}
-
     class SutTeBridgeNode : public rclcpp::Node
     {
 

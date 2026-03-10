@@ -1500,9 +1500,9 @@ namespace bridge {
     bestPos.hgt = currentNovatel.best_pos_var.hgt;
     bestPos.undulation = currentNovatel.best_pos_var.undulation;
     bestPos.datum_id = currentNovatel.best_pos_var.datum_id;
-    bestPos.lat_stdev = currentNovatel.best_pos_var.lat_stdev + noise(0.001);
-    bestPos.lon_stdev = currentNovatel.best_pos_var.lon_stdev + noise(0.001);
-    bestPos.hgt_stdev = currentNovatel.best_pos_var.hgt_stdev + noise(0.001);
+    bestPos.lat_stdev = currentNovatel.best_pos_var.lat_stdev;
+    bestPos.lon_stdev = currentNovatel.best_pos_var.lon_stdev;
+    bestPos.hgt_stdev = currentNovatel.best_pos_var.hgt_stdev;
 
     bestPos.stn_id[0] = currentNovatel.best_pos_var.stn_id[0];
     bestPos.stn_id[1] = currentNovatel.best_pos_var.stn_id[1];
@@ -1625,7 +1625,7 @@ namespace bridge {
     heading2.heading = currentNovatel.heading_2_var.heading;
     heading2.pitch = currentNovatel.heading_2_var.pitch;
     heading2.reserved = currentNovatel.heading_2_var.reserved;
-    heading2.heading_stdev = currentNovatel.heading_2_var.heading_stdev + noise(0.001);
+    heading2.heading_stdev = currentNovatel.heading_2_var.heading_stdev;
     heading2.pitch_stdev = currentNovatel.heading_2_var.pitch_stdev;
     heading2.rover_stn_id[0] = currentNovatel.heading_2_var.rover_stn_id[0];
     heading2.rover_stn_id[1] = currentNovatel.heading_2_var.rover_stn_id[1];
