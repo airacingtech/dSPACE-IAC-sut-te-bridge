@@ -1451,10 +1451,10 @@ namespace bridge {
     nova_tel_pwr_pak currentNovatel;
     std::string gps_frame;
     std::string imu_frame;
-    if (novatelID == 1)
+    if (novatelID == 1) // Novatel_top
     {
       currentNovatel = this->canBus->sim_interface_var.nova_tel_pwr_pak1_var;
-      gps_frame = "gps_antenna_front";
+      gps_frame = "gps_antenna_left";
       imu_frame = "imu_top";
       this->novaTelBestPosPublisher = this->novaTelBestPosPublisher1_;
       this->novaTelBestGNSSPosPublisher = this->novaTelBestGNSSPosPublisher1_;
@@ -1465,10 +1465,10 @@ namespace bridge {
       this->novaTelRawImuPublisher = this->novaTelRawImuPublisher1_;
       this->novaTelRawImuXPublisher = this->novaTelRawImuXPublisher1_;
       }
-    else if (novatelID == 2)
+    else if (novatelID == 2) // Novatel_bottom
     {
       currentNovatel = this->canBus->sim_interface_var.nova_tel_pwr_pak2_var;
-      gps_frame = "gps_antenna_right";
+      gps_frame = "gps_antenna_front";
       imu_frame = "imu_bottom";
       this->novaTelBestPosPublisher = this->novaTelBestPosPublisher2_;
       this->novaTelBestGNSSPosPublisher = this->novaTelBestGNSSPosPublisher2_;
