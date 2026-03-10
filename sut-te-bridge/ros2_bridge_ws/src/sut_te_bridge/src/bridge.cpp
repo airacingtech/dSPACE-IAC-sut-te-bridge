@@ -1096,9 +1096,9 @@ namespace bridge {
     attitudeGroup.linearaccelned.y = this->canBus->sim_interface_var.vector_nav_vn1_var.attitude_group_var.linearaccelned_var.y;
     attitudeGroup.linearaccelned.z = this->canBus->sim_interface_var.vector_nav_vn1_var.attitude_group_var.linearaccelned_var.z;
     
-    attitudeGroup.ypru.x = this->canBus->sim_interface_var.vector_nav_vn1_var.attitude_group_var.ypru_var.x + noise(0.001);
-    attitudeGroup.ypru.y = this->canBus->sim_interface_var.vector_nav_vn1_var.attitude_group_var.ypru_var.y + noise(0.001);
-    attitudeGroup.ypru.z = this->canBus->sim_interface_var.vector_nav_vn1_var.attitude_group_var.ypru_var.z + noise(0.001);
+    attitudeGroup.ypru.x = this->canBus->sim_interface_var.vector_nav_vn1_var.attitude_group_var.ypru_var.x;
+    attitudeGroup.ypru.y = this->canBus->sim_interface_var.vector_nav_vn1_var.attitude_group_var.ypru_var.y;
+    attitudeGroup.ypru.z = this->canBus->sim_interface_var.vector_nav_vn1_var.attitude_group_var.ypru_var.z;
 
     this->verctorNavAttitudeGroupPublisher_->publish(attitudeGroup);
 
@@ -1449,10 +1449,13 @@ namespace bridge {
     }
     
     nova_tel_pwr_pak currentNovatel;
-    
-    if (novatelID == 1)
+    std::string gps_frame;
+    std::string imu_frame;
+    if (novatelID == 1) // Novatel_top
     {
       currentNovatel = this->canBus->sim_interface_var.nova_tel_pwr_pak1_var;
+      gps_frame = "gps_antenna_left";
+      imu_frame = "imu_top";
       this->novaTelBestPosPublisher = this->novaTelBestPosPublisher1_;
       this->novaTelBestGNSSPosPublisher = this->novaTelBestGNSSPosPublisher1_;
       this->novaTelBestVelPublisher = this->novaTelBestVelPublisher1_;
@@ -1462,9 +1465,11 @@ namespace bridge {
       this->novaTelRawImuPublisher = this->novaTelRawImuPublisher1_;
       this->novaTelRawImuXPublisher = this->novaTelRawImuXPublisher1_;
       }
-    else if (novatelID == 2)
+    else if (novatelID == 2) // Novatel_bottom
     {
       currentNovatel = this->canBus->sim_interface_var.nova_tel_pwr_pak2_var;
+      gps_frame = "gps_antenna_front";
+      imu_frame = "imu_bottom";
       this->novaTelBestPosPublisher = this->novaTelBestPosPublisher2_;
       this->novaTelBestGNSSPosPublisher = this->novaTelBestGNSSPosPublisher2_;
       this->novaTelBestVelPublisher = this->novaTelBestVelPublisher2_;
@@ -1481,14 +1486,12 @@ namespace bridge {
     
     // Best Pos
     auto bestPos = novatel_oem7_msgs::msg::BESTPOS();
-
+    bestPos.header.frame_id = gps_frame;
     bestPos.nov_header.message_name = currentNovatel.best_pos_var.nov_header_var.message_name[0];
     bestPos.nov_header.message_id = currentNovatel.best_pos_var.nov_header_var.message_id;
     bestPos.nov_header.message_type = currentNovatel.best_pos_var.nov_header_var.message_type;
     bestPos.nov_header.sequence_number = currentNovatel.best_pos_var.nov_header_var.sequence_number;
     bestPos.nov_header.time_status = currentNovatel.best_pos_var.nov_header_var.time_status;
-    bestPos.nov_header.gps_week_number = currentNovatel.best_pos_var.nov_header_var.gps_week_number;
-    bestPos.nov_header.gps_week_milliseconds = currentNovatel.best_pos_var.nov_header_var.gps_week_milliseconds;
     bestPos.nov_header.idle_time = currentNovatel.best_pos_var.nov_header_var.idle_time;
 
     bestPos.sol_status.status = currentNovatel.best_pos_var.sol_status;
@@ -1521,10 +1524,6 @@ namespace bridge {
 
     bestPos.galileo_beidou_sig_mask = currentNovatel.best_pos_var.galileo_beidou_sig_mask;
     bestPos.gps_glonass_sig_mask = currentNovatel.best_pos_var.gps_glonass_sig_mask;
-
-    // Header
-    bestPos.header.frame_id = "gps_antenna_front";
-
     if(this->simModeEnabled)
     {
       bestPos.header.stamp.sec = this->sec;
@@ -1535,20 +1534,19 @@ namespace bridge {
       bestPos.header.stamp.sec = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()).time_since_epoch().count();
       bestPos.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (bestPos.header.stamp.sec*1000000000);
     }
-
+    fromStamp(bestPos.header.stamp, bestPos.nov_header.gps_week_number, bestPos.nov_header.gps_week_milliseconds);
+    
     this->novaTelBestPosPublisher->publish(bestPos);
     this->novaTelBestGNSSPosPublisher->publish(bestPos);
     
     // Best Vel
     auto bestVel = novatel_oem7_msgs::msg::BESTVEL();
-
+    bestVel.header.frame_id = gps_frame;
     bestVel.nov_header.message_name = currentNovatel.best_vel_var.nov_header_var.message_name[0];
     bestVel.nov_header.message_id = currentNovatel.best_vel_var.nov_header_var.message_id;
     bestVel.nov_header.message_type = currentNovatel.best_vel_var.nov_header_var.message_type;
     bestVel.nov_header.sequence_number = currentNovatel.best_vel_var.nov_header_var.sequence_number;
     bestVel.nov_header.time_status = currentNovatel.best_vel_var.nov_header_var.time_status;
-    bestVel.nov_header.gps_week_number = currentNovatel.best_vel_var.nov_header_var.gps_week_number;
-    bestVel.nov_header.gps_week_milliseconds = currentNovatel.best_vel_var.nov_header_var.gps_week_milliseconds;
     bestVel.nov_header.idle_time = currentNovatel.best_vel_var.nov_header_var.idle_time;
 
     bestVel.sol_status.status = currentNovatel.best_vel_var.sol_status;
@@ -1563,8 +1561,6 @@ namespace bridge {
     bestVel.reserved = currentNovatel.best_vel_var.reserved;
 
     // Header
-    bestVel.header.frame_id = "gps_antenna_front";
-
     if(this->simModeEnabled)
     {
       bestVel.header.stamp.sec = this->sec;
@@ -1575,20 +1571,18 @@ namespace bridge {
       bestVel.header.stamp.sec = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()).time_since_epoch().count();
       bestVel.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (bestVel.header.stamp.sec*1000000000);
     }
-
+    fromStamp(bestVel.header.stamp, bestVel.nov_header.gps_week_number, bestVel.nov_header.gps_week_milliseconds);
     this->novaTelBestVelPublisher->publish(bestVel);
     this->novaTelBestGNSSVelPublisher->publish(bestVel);
 
     // Inspva
     auto inspva = novatel_oem7_msgs::msg::INSPVA();
-
+    inspva.header.frame_id = gps_frame;
     inspva.nov_header.message_name = currentNovatel.inspava_var.nov_header_var.message_name[0];
     inspva.nov_header.message_id = currentNovatel.inspava_var.nov_header_var.message_id;
     inspva.nov_header.message_type = currentNovatel.inspava_var.nov_header_var.message_type;
     inspva.nov_header.sequence_number = currentNovatel.inspava_var.nov_header_var.sequence_number;
     inspva.nov_header.time_status = currentNovatel.inspava_var.nov_header_var.time_status;
-    inspva.nov_header.gps_week_number = currentNovatel.inspava_var.nov_header_var.gps_week_number;
-    inspva.nov_header.gps_week_milliseconds = currentNovatel.inspava_var.nov_header_var.gps_week_milliseconds;
     inspva.nov_header.idle_time = currentNovatel.inspava_var.nov_header_var.idle_time;
 
     inspva.latitude = currentNovatel.inspava_var.latitude;
@@ -1603,9 +1597,6 @@ namespace bridge {
 
     inspva.status.status = currentNovatel.inspava_var.status_var.status_var;
 
-    // Header
-    inspva.header.frame_id = "gps_antenna_front";
-
     if(this->simModeEnabled)
     {
       inspva.header.stamp.sec = this->sec;
@@ -1616,19 +1607,17 @@ namespace bridge {
       inspva.header.stamp.sec = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()).time_since_epoch().count();
       inspva.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (inspva.header.stamp.sec*1000000000);
     }
-
+    fromStamp(inspva.header.stamp, inspva.nov_header.gps_week_number, inspva.nov_header.gps_week_milliseconds);
     this->novaTelInspvaPublisher->publish(inspva);
 
     // Heading 2
     auto heading2 = novatel_oem7_msgs::msg::HEADING2();
-
+    heading2.header.frame_id = gps_frame;
     heading2.nov_header.message_name = currentNovatel.heading_2_var.nov_header_var.message_name[0];
     heading2.nov_header.message_id = currentNovatel.heading_2_var.nov_header_var.message_id;
     heading2.nov_header.message_type = currentNovatel.heading_2_var.nov_header_var.message_type;
     heading2.nov_header.sequence_number = currentNovatel.heading_2_var.nov_header_var.sequence_number;
     heading2.nov_header.time_status = currentNovatel.heading_2_var.nov_header_var.time_status;
-    heading2.nov_header.gps_week_number = currentNovatel.heading_2_var.nov_header_var.gps_week_number;
-    heading2.nov_header.gps_week_milliseconds = currentNovatel.heading_2_var.nov_header_var.gps_week_milliseconds;
     heading2.nov_header.idle_time = currentNovatel.heading_2_var.nov_header_var.idle_time;
 
     heading2.sol_status.status = currentNovatel.heading_2_var.sol_status;
@@ -1657,9 +1646,6 @@ namespace bridge {
     heading2.ext_sol_status.status = currentNovatel.heading_2_var.ext_sol_status;
     heading2.galileo_beidou_sig_mask = currentNovatel.heading_2_var.galileo_beidou_sig_mask;
     heading2.gps_glonass_sig_mask = currentNovatel.heading_2_var.gps_glonass_sig_mask;
-    
-    // Header
-    heading2.header.frame_id = "gps_antenna_front";
 
     if(this->simModeEnabled)
     {
@@ -1672,11 +1658,12 @@ namespace bridge {
       heading2.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (heading2.header.stamp.sec*1000000000);
     }
 
+    fromStamp(heading2.header.stamp, heading2.nov_header.gps_week_number, heading2.nov_header.gps_week_milliseconds);
     this->novaTelHeading2Publisher->publish(heading2);
 
     // Raw IMU
     auto rawImu = novatel_oem7_msgs::msg::RAWIMU();
-
+    
     rawImu.nov_header.message_name = currentNovatel.raw_imu_var.nov_header_var.message_name[0];
     rawImu.nov_header.message_id = currentNovatel.raw_imu_var.nov_header_var.message_id;
     rawImu.nov_header.message_type = currentNovatel.raw_imu_var.nov_header_var.message_type;
@@ -1699,7 +1686,7 @@ namespace bridge {
     rawImu.angular_velocity.z = currentNovatel.raw_imu_var.angular_velocity_var.z;
 
     // Header
-    rawImu.header.frame_id = "novatel_imu";
+    rawImu.header.frame_id = imu_frame;
 
     if(this->simModeEnabled)
     {
@@ -1734,7 +1721,7 @@ namespace bridge {
     for (size_t i = 0; i < 9; i++) {rawImuX.linear_acceleration_covariance[i] = 0;}
 
     // Header
-    rawImuX.header.frame_id = "novatel_imu";
+    rawImuX.header.frame_id = imu_frame;
 
     if(this->simModeEnabled)
     {
