@@ -1495,9 +1495,9 @@ namespace bridge {
 
     bestPos.pos_type.type = currentNovatel.best_pos_var.pos_type;
     
-    bestPos.lat = currentNovatel.best_pos_var.lat;
-    bestPos.lon = currentNovatel.best_pos_var.lon;
-    bestPos.hgt = currentNovatel.best_pos_var.hgt;
+    bestPos.lat = currentNovatel.best_pos_var.lat + noise(0.0000001); // ~1 cm in degrees
+    bestPos.lon = currentNovatel.best_pos_var.lon + noise(0.0000001); // ~1 cm in degrees
+    bestPos.hgt = currentNovatel.best_pos_var.hgt + noise(0.01);      // 1 cm in meters
     bestPos.undulation = currentNovatel.best_pos_var.undulation;
     bestPos.datum_id = currentNovatel.best_pos_var.datum_id;
     bestPos.lat_stdev = currentNovatel.best_pos_var.lat_stdev + noise(0.001);
