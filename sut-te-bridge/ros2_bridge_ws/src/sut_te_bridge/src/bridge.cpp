@@ -1453,7 +1453,7 @@ namespace bridge {
     if (novatelID == 1)
     {
       currentNovatel = this->canBus->sim_interface_var.nova_tel_pwr_pak1_var;
-      frame_id = "gps_antenna_left";
+      frame_id = "gps_antenna_front";
       this->novaTelBestPosPublisher = this->novaTelBestPosPublisher1_;
       this->novaTelBestGNSSPosPublisher = this->novaTelBestGNSSPosPublisher1_;
       this->novaTelBestVelPublisher = this->novaTelBestVelPublisher1_;
@@ -1466,7 +1466,7 @@ namespace bridge {
     else if (novatelID == 2)
     {
       currentNovatel = this->canBus->sim_interface_var.nova_tel_pwr_pak2_var;
-      frame_id = "gps_antenna_right";
+      frame_id = "gps_antenna_left";
       this->novaTelBestPosPublisher = this->novaTelBestPosPublisher2_;
       this->novaTelBestGNSSPosPublisher = this->novaTelBestGNSSPosPublisher2_;
       this->novaTelBestVelPublisher = this->novaTelBestVelPublisher2_;
