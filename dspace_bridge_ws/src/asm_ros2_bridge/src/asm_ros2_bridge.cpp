@@ -352,7 +352,7 @@ namespace asm_ros2_bridge {
           RCLCPP_INFO(this->get_logger(), "Maneuver started. Data will be published");
         } else if (this->canBus->asm_bus_var.environment.maneuver.maneuverScheduler.info.maneuverState != 3 && this->maneuverStarted == true)
         {
-          RCLCPP_INFO(this->get_logger(), "aneuver stopped. System will be reset");
+          RCLCPP_INFO(this->get_logger(), "Maneuver stopped. System will be reset");
           initializeFeedback();
           std_msgs::msg::Bool resetMsg;
           resetMsg.data = true;
