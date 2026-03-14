@@ -1336,13 +1336,29 @@ namespace asm_ros2_bridge {
     this->verctorNavInsGroupPublisher_->publish(insGroup);
   }
 
+  static void fromStamp(
+    const builtin_interfaces::msg::Time & stamp,
+    uint16_t & gps_week,
+    uint32_t & gps_ms)
+  {
+    constexpr int64_t GPS_EPOCH_UNIX_SEC = 315964800;
+    constexpr int64_t SECS_PER_WEEK = 604800;
+    constexpr int64_t LEAP_SECONDS = 18;
+
+    int64_t gps_sec = static_cast<int64_t>(stamp.sec) - GPS_EPOCH_UNIX_SEC + LEAP_SECONDS;
+    gps_week = static_cast<uint16_t>(gps_sec / SECS_PER_WEEK);
+    int64_t week_sec = gps_sec % SECS_PER_WEEK;
+    gps_ms = static_cast<uint32_t>(week_sec * 1000 + stamp.nanosec / 1000000);
+  }
+
   void AsmRos2BridgeNode::publishNovatelData(uint8_t novatelID)
   {
     if (this->verbosePrinting)
       RCLCPP_INFO(this->get_logger(), "publishNovatelData");
-    
+
     nova_tel_pwr_pak currentNovatel;
-    
+    std::string gps_frame, imu_frame;
+
     if (novatelID == 1)
     {
       currentNovatel = this->canBus->sim_interface_var.nova_tel_pwr_pak1_var;
@@ -1352,7 +1368,9 @@ namespace asm_ros2_bridge {
       this->novaTelBestGNSSVelPublisher = this->novaTelBestGNSSVelPublisher1_;
       this->novaTelInspvaPublisher = this->novaTelInspvaPublisher1_;
       this->novaTelHeading2Publisher = this->novaTelHeading2Publisher1_;
-      }
+      gps_frame = "gps_antenna_left";
+      imu_frame = "imu_top";
+    }
     else if (novatelID == 2)
     {
       currentNovatel = this->canBus->sim_interface_var.nova_tel_pwr_pak2_var;
@@ -1362,6 +1380,8 @@ namespace asm_ros2_bridge {
       this->novaTelBestGNSSVelPublisher = this->novaTelBestGNSSVelPublisher2_;
       this->novaTelInspvaPublisher = this->novaTelInspvaPublisher2_;
       this->novaTelHeading2Publisher = this->novaTelHeading2Publisher2_;
+      gps_frame = "gps_antenna_front";
+      imu_frame = "imu_bottom";
     }
     else
     {
@@ -1376,8 +1396,6 @@ namespace asm_ros2_bridge {
     bestPos.nov_header.message_type = currentNovatel.best_pos_var.nov_header_var.message_type;
     bestPos.nov_header.sequence_number = currentNovatel.best_pos_var.nov_header_var.sequence_number;
     bestPos.nov_header.time_status = currentNovatel.best_pos_var.nov_header_var.time_status;
-    bestPos.nov_header.gps_week_number = currentNovatel.best_pos_var.nov_header_var.gps_week_number;
-    bestPos.nov_header.gps_week_milliseconds = currentNovatel.best_pos_var.nov_header_var.gps_week_milliseconds;
     bestPos.nov_header.idle_time = currentNovatel.best_pos_var.nov_header_var.idle_time;
 
     bestPos.sol_status.status = currentNovatel.best_pos_var.sol_status;
@@ -1412,7 +1430,7 @@ namespace asm_ros2_bridge {
     bestPos.gps_glonass_sig_mask = currentNovatel.best_pos_var.gps_glonass_sig_mask;
 
     // Header
-    bestPos.header.frame_id = "world";
+    bestPos.header.frame_id = gps_frame;
 
     if(this->simModeEnabled)
     {
@@ -1425,6 +1443,8 @@ namespace asm_ros2_bridge {
       bestPos.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (bestPos.header.stamp.sec*1000000000);
     }
 
+    fromStamp(bestPos.header.stamp, bestPos.nov_header.gps_week_number, bestPos.nov_header.gps_week_milliseconds);
+
     this->novaTelBestPosPublisher->publish(bestPos);
     this->novaTelBestGNSSPosPublisher->publish(bestPos);
     
@@ -1436,8 +1456,6 @@ namespace asm_ros2_bridge {
     bestVel.nov_header.message_type = currentNovatel.best_vel_var.nov_header_var.message_type;
     bestVel.nov_header.sequence_number = currentNovatel.best_vel_var.nov_header_var.sequence_number;
     bestVel.nov_header.time_status = currentNovatel.best_vel_var.nov_header_var.time_status;
-    bestVel.nov_header.gps_week_number = currentNovatel.best_vel_var.nov_header_var.gps_week_number;
-    bestVel.nov_header.gps_week_milliseconds = currentNovatel.best_vel_var.nov_header_var.gps_week_milliseconds;
     bestVel.nov_header.idle_time = currentNovatel.best_vel_var.nov_header_var.idle_time;
 
     bestVel.sol_status.status = currentNovatel.best_vel_var.sol_status;
@@ -1452,7 +1470,7 @@ namespace asm_ros2_bridge {
     bestVel.reserved = currentNovatel.best_vel_var.reserved;
 
     // Header
-    bestVel.header.frame_id = "ego";
+    bestVel.header.frame_id = gps_frame;
 
     if(this->simModeEnabled)
     {
@@ -1465,6 +1483,8 @@ namespace asm_ros2_bridge {
       bestVel.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (bestVel.header.stamp.sec*1000000000);
     }
 
+    fromStamp(bestVel.header.stamp, bestVel.nov_header.gps_week_number, bestVel.nov_header.gps_week_milliseconds);
+
     this->novaTelBestVelPublisher->publish(bestVel);
     this->novaTelBestGNSSVelPublisher->publish(bestVel);
 
@@ -1476,8 +1496,6 @@ namespace asm_ros2_bridge {
     inspva.nov_header.message_type = currentNovatel.inspava_var.nov_header_var.message_type;
     inspva.nov_header.sequence_number = currentNovatel.inspava_var.nov_header_var.sequence_number;
     inspva.nov_header.time_status = currentNovatel.inspava_var.nov_header_var.time_status;
-    inspva.nov_header.gps_week_number = currentNovatel.inspava_var.nov_header_var.gps_week_number;
-    inspva.nov_header.gps_week_milliseconds = currentNovatel.inspava_var.nov_header_var.gps_week_milliseconds;
     inspva.nov_header.idle_time = currentNovatel.inspava_var.nov_header_var.idle_time;
 
     inspva.latitude = currentNovatel.inspava_var.latitude;
@@ -1493,7 +1511,7 @@ namespace asm_ros2_bridge {
     inspva.status.status = currentNovatel.inspava_var.status_var.status_var;
 
     // Header
-    inspva.header.frame_id = "world";
+    inspva.header.frame_id = gps_frame;
 
     if(this->simModeEnabled)
     {
@@ -1506,6 +1524,8 @@ namespace asm_ros2_bridge {
       inspva.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (inspva.header.stamp.sec*1000000000);
     }
 
+    fromStamp(inspva.header.stamp, inspva.nov_header.gps_week_number, inspva.nov_header.gps_week_milliseconds);
+
     this->novaTelInspvaPublisher->publish(inspva);
 
     // Heading 2
@@ -1516,8 +1536,6 @@ namespace asm_ros2_bridge {
     heading2.nov_header.message_type = currentNovatel.heading_2_var.nov_header_var.message_type;
     heading2.nov_header.sequence_number = currentNovatel.heading_2_var.nov_header_var.sequence_number;
     heading2.nov_header.time_status = currentNovatel.heading_2_var.nov_header_var.time_status;
-    heading2.nov_header.gps_week_number = currentNovatel.heading_2_var.nov_header_var.gps_week_number;
-    heading2.nov_header.gps_week_milliseconds = currentNovatel.heading_2_var.nov_header_var.gps_week_milliseconds;
     heading2.nov_header.idle_time = currentNovatel.heading_2_var.nov_header_var.idle_time;
 
     heading2.sol_status.status = currentNovatel.heading_2_var.sol_status;
@@ -1548,7 +1566,7 @@ namespace asm_ros2_bridge {
     heading2.gps_glonass_sig_mask = currentNovatel.heading_2_var.gps_glonass_sig_mask;
     
     // Header
-    heading2.header.frame_id = "world";
+    heading2.header.frame_id = gps_frame;
 
     if(this->simModeEnabled)
     {
@@ -1560,6 +1578,8 @@ namespace asm_ros2_bridge {
       heading2.header.stamp.sec = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()).time_since_epoch().count();
       heading2.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (heading2.header.stamp.sec*1000000000);
     }
+
+    fromStamp(heading2.header.stamp, heading2.nov_header.gps_week_number, heading2.nov_header.gps_week_milliseconds);
 
     this->novaTelHeading2Publisher->publish(heading2);
   }
@@ -1587,7 +1607,7 @@ namespace asm_ros2_bridge {
     {
         RCLCPP_ERROR(this->get_logger(), "Unknown ID of Novatel Device. Only two Novatels are supported.");
     }
-    
+    const std::string imu_frame = (novatelID == 1) ? "imu_top" : "imu_bottom";
 
     // Raw IMU
     auto rawImu = novatel_oem7_msgs::msg::RAWIMU();
@@ -1597,8 +1617,6 @@ namespace asm_ros2_bridge {
     rawImu.nov_header.message_type = currentNovatel.raw_imu_var.nov_header_var.message_type;
     rawImu.nov_header.sequence_number = currentNovatel.raw_imu_var.nov_header_var.sequence_number;
     rawImu.nov_header.time_status = currentNovatel.raw_imu_var.nov_header_var.time_status;
-    rawImu.nov_header.gps_week_number = currentNovatel.raw_imu_var.nov_header_var.gps_week_number;
-    rawImu.nov_header.gps_week_milliseconds = currentNovatel.raw_imu_var.nov_header_var.gps_week_milliseconds;
     rawImu.nov_header.idle_time = currentNovatel.raw_imu_var.nov_header_var.idle_time;
 
     rawImu.gnss_week = currentNovatel.raw_imu_var.gnss_week;
@@ -1614,7 +1632,7 @@ namespace asm_ros2_bridge {
     rawImu.angular_velocity.z = currentNovatel.raw_imu_var.angular_velocity_var.z;
 
     // Header
-    rawImu.header.frame_id = "ego";
+    rawImu.header.frame_id = imu_frame;
 
     if(this->simModeEnabled)
     {
@@ -1626,6 +1644,8 @@ namespace asm_ros2_bridge {
       rawImu.header.stamp.sec = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()).time_since_epoch().count();
       rawImu.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (rawImu.header.stamp.sec*1000000000);
     }
+
+    fromStamp(rawImu.header.stamp, rawImu.nov_header.gps_week_number, rawImu.nov_header.gps_week_milliseconds);
 
     this->novaTelRawImuPublisher->publish(rawImu);
 
@@ -1649,7 +1669,7 @@ namespace asm_ros2_bridge {
     for (size_t i = 0; i < 9; i++) {rawImuX.linear_acceleration_covariance[i] = 0;}
 
     // Header
-    rawImuX.header.frame_id = "ego";
+    rawImuX.header.frame_id = imu_frame;
 
     if(this->simModeEnabled)
     {
