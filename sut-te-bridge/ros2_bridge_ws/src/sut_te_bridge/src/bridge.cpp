@@ -1706,7 +1706,7 @@ namespace bridge {
     this->novaTelRawImuPublisher->publish(rawImu);
 
     // CORRIMU
-    auto corrimu = novatel_oem7_msgs::msg::CORIRMU();
+    auto corrimu = novatel_oem7_msgs::msg::CORRIMU();
 
     corrimu.longitudinal_acc = currentNovatel.raw_imu_var.linear_acceleration_var.x;
     corrimu.lateral_acc = currentNovatel.raw_imu_var.linear_acceleration_var.y;
