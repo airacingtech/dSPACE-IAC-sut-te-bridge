@@ -167,6 +167,7 @@ namespace asm_ros2_bridge {
       this->novaTelHeading2Publisher1_ = this->create_publisher<novatel_oem7_msgs::msg::HEADING2>("novatel_top/heading2", qos);
       this->novaTelRawImuPublisher1_ = this->create_publisher<novatel_oem7_msgs::msg::RAWIMU>("novatel_top/rawimu", qos);
       this->novaTelRawImuXPublisher1_ = this->create_publisher<sensor_msgs::msg::Imu>("novatel_top/rawimux", qos);
+      this->novaTelCorrimuPublisher1_ = this->create_publisher<novatel_oem7_msgs::msg::CORRIMU>("novatel_top/corrimu", qos);
 
       this->novaTelBestPosPublisher2_ = this->create_publisher<novatel_oem7_msgs::msg::BESTPOS>("novatel_bottom/bestpos", qos);
       this->novaTelBestGNSSPosPublisher2_ = this->create_publisher<novatel_oem7_msgs::msg::BESTPOS>("novatel_bottom/bestgnsspos", qos);
@@ -176,6 +177,7 @@ namespace asm_ros2_bridge {
       this->novaTelHeading2Publisher2_ = this->create_publisher<novatel_oem7_msgs::msg::HEADING2>("novatel_bottom/heading2", qos);
       this->novaTelRawImuPublisher2_ = this->create_publisher<novatel_oem7_msgs::msg::RAWIMU>("novatel_bottom/rawimu", qos);
       this->novaTelRawImuXPublisher2_ = this->create_publisher<sensor_msgs::msg::Imu>("novatel_bottom/rawimux", qos);
+      this->novaTelCorrimuPublisher2_ = this->create_publisher<novatel_oem7_msgs::msg::CORRIMU>("novatel_bottom/corrimu", qos);
 
       this->foxgloveMapPublisher0_ = this->create_publisher<sensor_msgs::msg::NavSatFix>("map2d_ego_position", qos);
       this->foxgloveMapPublisher1_ = this->create_publisher<sensor_msgs::msg::NavSatFix>("map2d_fellow1_position", qos);
@@ -1596,12 +1598,14 @@ namespace asm_ros2_bridge {
       currentNovatel = this->canBus->sim_interface_var.nova_tel_pwr_pak1_var;
       this->novaTelRawImuPublisher = this->novaTelRawImuPublisher1_;
       this->novaTelRawImuXPublisher = this->novaTelRawImuXPublisher1_;
-      }
+      this->novaTelCorrimuPublisher = this->novaTelCorrimuPublisher1_;
+    }
     else if (novatelID == 2)
     {
       currentNovatel = this->canBus->sim_interface_var.nova_tel_pwr_pak2_var;
       this->novaTelRawImuPublisher = this->novaTelRawImuPublisher2_;
       this->novaTelRawImuXPublisher = this->novaTelRawImuXPublisher2_;
+      this->novaTelCorrimuPublisher = this->novaTelCorrimuPublisher2_;
     }
     else
     {
@@ -1683,6 +1687,33 @@ namespace asm_ros2_bridge {
     }
 
     this->novaTelRawImuXPublisher->publish(rawImuX);
+
+    // CORRIMU
+    auto corrimu = novatel_oem7_msgs::msg::CORRIMU();
+
+    corrimu.longitudinal_acc = currentNovatel.raw_imu_var.linear_acceleration_var.x;
+    corrimu.lateral_acc = currentNovatel.raw_imu_var.linear_acceleration_var.y;
+    corrimu.vertical_acc = currentNovatel.raw_imu_var.linear_acceleration_var.z;
+
+    corrimu.roll_rate = currentNovatel.raw_imu_var.angular_velocity_var.x;
+    corrimu.pitch_rate = currentNovatel.raw_imu_var.angular_velocity_var.y;
+    corrimu.yaw_rate = currentNovatel.raw_imu_var.angular_velocity_var.z;
+
+    // Header
+    corrimu.header.frame_id = imu_frame;
+
+    if(this->simModeEnabled)
+    {
+      corrimu.header.stamp.sec = this->sec;
+      corrimu.header.stamp.nanosec = this->nsec;
+    }
+    else
+    {
+      corrimu.header.stamp.sec = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+      corrimu.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (corrimu.header.stamp.sec*1000000000);
+    }
+
+    this->novaTelCorrimuPublisher->publish(corrimu);
   }
 } // namespace asm_ros2_bridge
 

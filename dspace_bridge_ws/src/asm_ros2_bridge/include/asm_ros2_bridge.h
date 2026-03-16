@@ -39,6 +39,7 @@
 #include "novatel_oem7_msgs/msg/inspva.hpp"
 #include "novatel_oem7_msgs/msg/heading2.hpp"
 #include "novatel_oem7_msgs/msg/rawimu.hpp"
+#include "novatel_oem7_msgs/msg/corrimu.hpp"
 
 #include "foxglove_msgs/msg/scene_update.hpp"
 
@@ -103,6 +104,10 @@ namespace asm_ros2_bridge
         rclcpp::Publisher<novatel_oem7_msgs::msg::HEADING2>::SharedPtr novaTelHeading2Publisher2_;
         rclcpp::Publisher<novatel_oem7_msgs::msg::RAWIMU>::SharedPtr novaTelRawImuPublisher2_;
         rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr novaTelRawImuXPublisher2_;
+
+        rclcpp::Publisher<novatel_oem7_msgs::msg::CORRIMU>::SharedPtr novaTelCorrimuPublisher;
+        rclcpp::Publisher<novatel_oem7_msgs::msg::CORRIMU>::SharedPtr novaTelCorrimuPublisher1_;
+        rclcpp::Publisher<novatel_oem7_msgs::msg::CORRIMU>::SharedPtr novaTelCorrimuPublisher2_;
 
         rclcpp::Publisher<sensor_msgs::msg::NavSatFix>::SharedPtr foxgloveMapPublisher_;
         rclcpp::Publisher<sensor_msgs::msg::NavSatFix>::SharedPtr foxgloveMapPublisher0_;
