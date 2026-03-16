@@ -41,7 +41,7 @@
 #include "novatel_oem7_msgs/msg/inspva.hpp"
 #include "novatel_oem7_msgs/msg/heading2.hpp"
 #include "novatel_oem7_msgs/msg/rawimu.hpp"
-
+#include <novatel_oem7_msgs/msg/corrimu.hpp>
 #include "foxglove_msgs/msg/scene_update.hpp"
 
 #include "iac_qos.h"
@@ -104,6 +104,7 @@ static void fromStamp(const builtin_interfaces::msg::Time& stamp,
         rclcpp::Publisher<novatel_oem7_msgs::msg::INSPVA>::SharedPtr novaTelInspvaPublisher;
         rclcpp::Publisher<novatel_oem7_msgs::msg::HEADING2>::SharedPtr novaTelHeading2Publisher;
         rclcpp::Publisher<novatel_oem7_msgs::msg::RAWIMU>::SharedPtr novaTelRawImuPublisher;
+        rclcpp::Publisher<novatel_oem7_msgs::msg::CORRIMU>::SharedPtr novaTelCorrimuPublisher;
         rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr novaTelRawImuXPublisher;
 
         rclcpp::Publisher<novatel_oem7_msgs::msg::BESTPOS>::SharedPtr novaTelBestPosPublisher1_;
@@ -113,6 +114,7 @@ static void fromStamp(const builtin_interfaces::msg::Time& stamp,
         rclcpp::Publisher<novatel_oem7_msgs::msg::INSPVA>::SharedPtr novaTelInspvaPublisher1_;
         rclcpp::Publisher<novatel_oem7_msgs::msg::HEADING2>::SharedPtr novaTelHeading2Publisher1_;
         rclcpp::Publisher<novatel_oem7_msgs::msg::RAWIMU>::SharedPtr novaTelRawImuPublisher1_;
+        rclcpp::Publisher<novatel_oem7_msgs::msg::CORRIMU>::SharedPtr novaTelCorrimuPublisher1_;
         rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr novaTelRawImuXPublisher1_;
 
         rclcpp::Publisher<novatel_oem7_msgs::msg::BESTPOS>::SharedPtr novaTelBestPosPublisher2_;
@@ -122,6 +124,7 @@ static void fromStamp(const builtin_interfaces::msg::Time& stamp,
         rclcpp::Publisher<novatel_oem7_msgs::msg::INSPVA>::SharedPtr novaTelInspvaPublisher2_;
         rclcpp::Publisher<novatel_oem7_msgs::msg::HEADING2>::SharedPtr novaTelHeading2Publisher2_;
         rclcpp::Publisher<novatel_oem7_msgs::msg::RAWIMU>::SharedPtr novaTelRawImuPublisher2_;
+        rclcpp::Publisher<novatel_oem7_msgs::msg::CORRIMU>::SharedPtr novaTelCorrimuPublisher2_;
         rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr novaTelRawImuXPublisher2_;
 
         rclcpp::Publisher<sensor_msgs::msg::NavSatFix>::SharedPtr foxgloveMapPublisher;
