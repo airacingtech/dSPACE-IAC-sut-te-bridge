@@ -1713,6 +1713,8 @@ namespace asm_ros2_bridge {
       corrimu.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (corrimu.header.stamp.sec*1000000000);
     }
 
+    fromStamp(corrimu.header.stamp, corrimu.nov_header.gps_week_number, corrimu.nov_header.gps_week_milliseconds);
+
     this->novaTelCorrimuPublisher->publish(corrimu);
   }
 } // namespace asm_ros2_bridge
