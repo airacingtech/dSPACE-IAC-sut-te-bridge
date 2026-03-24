@@ -5,6 +5,8 @@ TEAM="airacingtech"
 TAG="latest"
 BASE_IMAGE="ghcr.io/airacingtech/art_ros_jazzy_cpu-built-dspace:stable"
 
+docker pull $BASE_IMAGE
+
 # define name of the image
 NAME_DEV=$TEAM/iac_dspace_bridge_dev:$TAG
 NAME_ASM_SOCKETCAN=$TEAM/iac_asm_socketcan_bridge:$TAG
