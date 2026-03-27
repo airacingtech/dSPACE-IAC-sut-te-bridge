@@ -1627,7 +1627,7 @@ namespace asm_socketcan_bridge {
   {
     const auto &source = data.raw_imu_var;
     message.longitudinal_acc = source.linear_acceleration_var.x;
-    message.lateral_acc = source.linear_acceleration_var.y;
+    message.lateral_acc = -source.linear_acceleration_var.y;
     message.vertical_acc = source.linear_acceleration_var.z;
     message.roll_rate = source.angular_velocity_var.x;
     message.pitch_rate = source.angular_velocity_var.y;
@@ -1679,7 +1679,7 @@ namespace asm_socketcan_bridge {
     message.gnss_seconds = source.gnss_seconds;
     message.status = source.status_var;
     message.linear_acceleration.x = source.linear_acceleration_var.x;
-    message.linear_acceleration.y = source.linear_acceleration_var.y;
+    message.linear_acceleration.y = -source.linear_acceleration_var.y;
     message.linear_acceleration.z = source.linear_acceleration_var.z;
     message.angular_velocity.x = source.angular_velocity_var.x;
     message.angular_velocity.y = source.angular_velocity_var.y;
@@ -1705,7 +1705,7 @@ namespace asm_socketcan_bridge {
       value = 0.0;
     }
     message.linear_acceleration.x = source.linear_acceleration_var.x;
-    message.linear_acceleration.y = source.linear_acceleration_var.y;
+    message.linear_acceleration.y = -source.linear_acceleration_var.y;
     message.linear_acceleration.z = source.linear_acceleration_var.z;
     for (auto &value : message.linear_acceleration_covariance) {
       value = 0.0;
