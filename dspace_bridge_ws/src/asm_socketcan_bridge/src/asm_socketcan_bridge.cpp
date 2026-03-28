@@ -2311,8 +2311,8 @@ namespace asm_socketcan_bridge {
       insGroup.insstatus.gps_error = source.insstatus_var.gps_error;
       insGroup.insstatus.gps_heading_ins = source.insstatus_var.gps_heading_ins;
       insGroup.insstatus.gps_compass = source.insstatus_var.gps_compass;
-      insGroup.poslla.x = source.poslla_var.x;
-      insGroup.poslla.y = source.poslla_var.y;
+      insGroup.poslla.x = source.poslla_var.y;
+      insGroup.poslla.y = source.poslla_var.x;
       insGroup.poslla.z = source.poslla_var.z;
       insGroup.posecef.x = source.posecef_var.x;
       insGroup.posecef.y = source.posecef_var.y;
