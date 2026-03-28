@@ -1887,7 +1887,7 @@ namespace asm_socketcan_bridge {
     if (!populated) {
       return;
     }
-    message.header.frame_id = (index == kNovatelTopIndex) ? "gps_antenna_left" : "gps_antenna_front";
+    message.header.frame_id = (index == kNovatelTopIndex) ? "gps_antenna_rear" : "gps_antenna_right";
     fromStamp(message.header.stamp, message.nov_header.gps_week_number, message.nov_header.gps_week_milliseconds);
     publisher->publish(message);
   }
@@ -1918,7 +1918,7 @@ namespace asm_socketcan_bridge {
     if (!populated) {
       return;
     }
-    message.header.frame_id = (index == kNovatelTopIndex) ? "gps_antenna_left" : "gps_antenna_front";
+    message.header.frame_id = (index == kNovatelTopIndex) ? "gps_antenna_rear" : "gps_antenna_right";
     fromStamp(message.header.stamp, message.nov_header.gps_week_number, message.nov_header.gps_week_milliseconds);
     publisher->publish(message);
   }
@@ -1949,7 +1949,7 @@ namespace asm_socketcan_bridge {
     if (!populated) {
       return;
     }
-    message.header.frame_id = (index == kNovatelTopIndex) ? "gps_antenna_left" : "gps_antenna_front";
+    message.header.frame_id = (index == kNovatelTopIndex) ? "gps_antenna_rear" : "gps_antenna_right";
     fromStamp(message.header.stamp, message.nov_header.gps_week_number, message.nov_header.gps_week_milliseconds);
     publisher->publish(message);
   }
@@ -1980,7 +1980,7 @@ namespace asm_socketcan_bridge {
     if (!populated) {
       return;
     }
-    message.header.frame_id = (index == kNovatelTopIndex) ? "gps_antenna_left" : "gps_antenna_front";
+    message.header.frame_id = (index == kNovatelTopIndex) ? "gps_antenna_rear" : "gps_antenna_right";
     fromStamp(message.header.stamp, message.nov_header.gps_week_number, message.nov_header.gps_week_milliseconds);
     publisher->publish(message);
   }
@@ -2011,7 +2011,7 @@ namespace asm_socketcan_bridge {
     if (!populated) {
       return;
     }
-    message.header.frame_id = (index == kNovatelTopIndex) ? "gps_antenna_left" : "gps_antenna_front";
+    message.header.frame_id = (index == kNovatelTopIndex) ? "gps_antenna_rear" : "gps_antenna_right";
     fromStamp(message.header.stamp, message.nov_header.gps_week_number, message.nov_header.gps_week_milliseconds);
     publisher->publish(message);
   }
@@ -2273,6 +2273,7 @@ namespace asm_socketcan_bridge {
     })) {
       return;
     }
+    gpsGroup.header.frame_id = "gps_antenna_front";
     auto publisher = vectornav_publishers_.gps[kVectorNavGpsLeftIndex];
     if (!publisher) {
       return;
@@ -2288,6 +2289,7 @@ namespace asm_socketcan_bridge {
     })) {
       return;
     }
+    gpsGroup.header.frame_id = "gps_antenna_left";
     auto publisher = vectornav_publishers_.gps[kVectorNavGpsRightIndex];
     if (!publisher) {
       return;
@@ -2298,7 +2300,7 @@ namespace asm_socketcan_bridge {
   void AsmSocketCanBridgeNode::publish_vectornav_ins_group()
   {
     vectornav_msgs::msg::InsGroup insGroup;
-    setHeader(insGroup.header, "world");
+    setHeader(insGroup.header, "gps_antenna_rear");
     bool populated = false;
     if (!withCanBusShared([&](const ASMBus &bus) {
       const auto &source = bus.sim_interface_var.vector_nav_vn1_var.ins_group_var;
@@ -3242,7 +3244,7 @@ namespace asm_socketcan_bridge {
     if (!populated) {
       return;
     }
-    message.header.frame_id = (index == kNovatelTopIndex) ? "gps_antenna_left" : "gps_antenna_front";
+    message.header.frame_id = (index == kNovatelTopIndex) ? "gps_antenna_rear" : "gps_antenna_right";
     fromStamp(message.header.stamp, message.nov_header.gps_week_number, message.nov_header.gps_week_milliseconds);
     publisher->publish(message);
   }
