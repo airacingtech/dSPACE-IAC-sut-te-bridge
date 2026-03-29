@@ -1576,8 +1576,8 @@ namespace asm_socketcan_bridge {
     message.nov_header.sequence_number = source.nov_header_var.sequence_number;
     message.nov_header.time_status = source.nov_header_var.time_status;
     message.nov_header.idle_time = source.nov_header_var.idle_time;
-    message.latitude = source.latitude;
-    message.longitude = source.longitude;
+    message.latitude = source.longitude;
+    message.longitude = source.latitude;
     message.height = source.height;
     message.north_velocity = source.north_velocity;
     message.east_velocity = source.east_velocity;
