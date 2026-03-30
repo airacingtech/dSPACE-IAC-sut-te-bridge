@@ -7,6 +7,7 @@ source /root/ros_ws_aux/install/local_setup.sh
 if [ $BRIDGE_TYPE = "ASM_CAN" ]; then
     echo "[INFO] Running CAN interface setup..."
 
+    source /opt/race_common/install/setup.bash
     source /root/dspace_bridge_ws/install/local_setup.sh
     PARAMS_FILE="${ASM_SOCKETCAN_PARAMS_FILE:-$(ros2 pkg prefix asm_socketcan_bridge)/share/asm_socketcan_bridge/config/asm_socketcan_bridge.yaml}"
 

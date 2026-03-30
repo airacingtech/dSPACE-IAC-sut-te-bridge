@@ -69,6 +69,7 @@ RUN mkdir -p /root/record_log && \
     apt-get update && \
     source /opt/ros/$ROS_DISTRO/local_setup.bash && \
     source /root/ros_ws_aux/install/local_setup.bash && \
+    source /opt/race_common/install/setup.bash && \
     rosdep install -i --from-path /root/dspace_bridge_ws/src --rosdistro $ROS_DISTRO -y && \
     colcon build --symlink-install --cmake-clean-first --base-paths /root/dspace_bridge_ws/ --build-base /root/dspace_bridge_ws/build --install-base /root/dspace_bridge_ws/install --cmake-args -DCMAKE_BUILD_TYPE=Release && \
     echo 'source /root/dspace_bridge_ws/install/local_setup.bash' >> /root/.bashrc
