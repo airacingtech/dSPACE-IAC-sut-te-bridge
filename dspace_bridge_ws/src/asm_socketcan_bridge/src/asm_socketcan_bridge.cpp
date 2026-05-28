@@ -1651,8 +1651,8 @@ namespace asm_socketcan_bridge {
     novatel_oem7_msgs::msg::CORRIMU message;
     bool populated = false;
     if (!withCanBusShared([&](const ASMBus &bus) {
-      const auto *data = index == kNovatelTopIndex ? &bus.sim_interface_var.nova_tel_pwr_pak1_var
-                                                   : &bus.sim_interface_var.nova_tel_pwr_pak2_var;
+      const auto *data = index == kNovatelTopIndex ? &bus.nova_tel_pwr_pak1_var
+                                                   : &bus.nova_tel_pwr_pak2_var;
       populateCorrImuMessage(message, *data);
       populated = true;
     })) {

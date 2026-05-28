@@ -50,8 +50,8 @@ RUN cd /root/ros_dbw_ws/src && git clone https://github.com/autowarefoundation/r
 # Build ros
 # NOTE: /opt/race_common must be provided by BASE_IMAGE
 RUN source /opt/ros/$ROS_DISTRO/local_setup.bash && \
-    source /root/ros_ws_aux/install/local_setup.bash && \
     source /opt/race_common/install/setup.bash && \
+    source /root/ros_ws_aux/install/local_setup.bash && \
     rosdep install -i --from-path /root/ros_dbw_ws/src --rosdistro $ROS_DISTRO -y && \
     colcon build --symlink-install --cmake-clean-first --base-paths /root/ros_dbw_ws/ --build-base /root/ros_dbw_ws/build --install-base /root/ros_dbw_ws/install --cmake-args -DCMAKE_BUILD_TYPE=Release && \
     echo 'source /root/ros_dbw_ws/install/local_setup.bash' >> /root/.bashrc
@@ -68,8 +68,8 @@ RUN mkdir -p /root/record_log && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get update && \
     source /opt/ros/$ROS_DISTRO/local_setup.bash && \
-    source /root/ros_ws_aux/install/local_setup.bash && \
     source /opt/race_common/install/setup.bash && \
+    source /root/ros_ws_aux/install/local_setup.bash && \
     rosdep install -i --from-path /root/dspace_bridge_ws/src --rosdistro $ROS_DISTRO -y && \
     colcon build --symlink-install --cmake-clean-first --base-paths /root/dspace_bridge_ws/ --build-base /root/dspace_bridge_ws/build --install-base /root/dspace_bridge_ws/install --cmake-args -DCMAKE_BUILD_TYPE=Release && \
     echo 'source /root/dspace_bridge_ws/install/local_setup.bash' >> /root/.bashrc
