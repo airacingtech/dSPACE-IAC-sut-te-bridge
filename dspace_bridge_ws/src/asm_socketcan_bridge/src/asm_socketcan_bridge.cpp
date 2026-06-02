@@ -1418,6 +1418,13 @@ namespace asm_socketcan_bridge {
   {
     if (this->verbosePrinting)
       RCLCPP_INFO(get_logger(), "sendVehicleFeedbackToSimulation");
+
+    double sim_current_gear = 0.0;
+    {
+      std::shared_lock<std::shared_mutex> bus_lock(can_bus_mutex_);
+      sim_current_gear = canBusStorage_.vehicle_sensors_var.power_train_data_var.current_gear;
+    }
+
     {
       std::lock_guard<std::mutex> lock(feedback_mutex_);
 
@@ -1447,6 +1454,14 @@ namespace asm_socketcan_bridge {
       {
         RCLCPP_INFO(get_logger(), "vehicle_inputs message received.");
         this->stackFeedbackConnectionWarningSent = false;
+      }
+
+      // D-Space's ASM transmission sits in neutral (gear 0) until commanded; our stack uses gears
+      // 1-6. Request 1st gear so it engages a drivable gear. The stack's own gear_shift_cmd
+      // (CAN 1403) overrides this whenever it commands a gear.
+      if (sim_current_gear == 0.0) {
+        this->feedbackCmd.vehicle_inputs.gear_cmd = 1;
+        this->feedbackCmd.vehicle_inputs.enable_gear_cmd = 1;
       }
 
       this->api.sendControlData(22222,std::addressof(this->feedbackCmd),sizeof(this->feedbackCmd));
@@ -2587,14 +2602,7 @@ namespace asm_socketcan_bridge {
       };
       const auto &powertrain = bus.vehicle_sensors_var.power_train_data_var;
       assign("throttle_position", powertrain.throttle_position);
-      // Our stack does not support 0 (neutral) gear.
-      if (powertrain.current_gear == 0.0) {
-        RCLCPP_WARN_STREAM_THROTTLE(
-          this->get_logger(), *this->get_clock(), 1000,
-          "D-Space reported gear=0 (neutral); clamping to 1.");
-      }
-      const auto effective_gear = powertrain.current_gear == 0.0 ? 1.0 : powertrain.current_gear;
-      assign("current_gear", effective_gear);
+      assign("current_gear", powertrain.current_gear);
       assign("engine_speed_rpm", powertrain.engine_rpm);
       assign("vehicle_speed_kmph", powertrain.vehicle_speed_kmph);
       assign("engine_run_switch", powertrain.engine_run_switch_status);
@@ -2604,9 +2612,11 @@ namespace asm_socketcan_bridge {
       {
         const auto commanded = static_cast<double>(this->feedbackCmd.vehicle_inputs.gear_cmd);
         uint8_t synthesized;
-        if (effective_gear < commanded) {
+        if (powertrain.current_gear == 0.0) {
+          synthesized = 1;  // AVAILABLE — neutral is a resting state, not a shift in progress
+        } else if (powertrain.current_gear < commanded) {
           synthesized = 3;  // UPSHIFTING
-        } else if (effective_gear > commanded) {
+        } else if (powertrain.current_gear > commanded) {
           synthesized = 4;  // DOWNSHIFTING
         } else {
           synthesized = 1;  // AVAILABLE
