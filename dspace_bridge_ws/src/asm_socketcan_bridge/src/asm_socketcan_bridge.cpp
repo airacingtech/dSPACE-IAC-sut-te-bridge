@@ -2612,7 +2612,9 @@ namespace asm_socketcan_bridge {
       {
         const auto commanded = static_cast<double>(this->feedbackCmd.vehicle_inputs.gear_cmd);
         uint8_t synthesized;
-        if (powertrain.current_gear < commanded) {
+        if (powertrain.current_gear == 0.0) {
+          synthesized = 1;  // AVAILABLE — neutral is a resting state, not a shift in progress
+        } else if (powertrain.current_gear < commanded) {
           synthesized = 3;  // UPSHIFTING
         } else if (powertrain.current_gear > commanded) {
           synthesized = 4;  // DOWNSHIFTING
