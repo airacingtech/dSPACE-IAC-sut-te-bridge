@@ -2,7 +2,7 @@ std_msgs/Header header
 uint8           car_num # number of fellow-vehicle
 float64         lat     # [deg] absolute position of fellow-vehicle in global coords
 float64         lon     # [deg] absolute position of fellow-vehicle in global coords
-float64         hgt     # [deg] absolute position of fellow-vehicle in global coords
+float64         hgt     # [m] height in the map-ENU vertical frame (TTL origin datum), NOT geodetic altitude
 float64         vx      # [m/s] relative velocity of fellow-vehicle in ego-vehicle local coords
 float64         vy      # [m/s] relative velocity of fellow-vehicle in ego-vehicle local coords
 float64         vz      # [m/s] relative velocity of fellow-vehicle in ego-vehicle local coords
