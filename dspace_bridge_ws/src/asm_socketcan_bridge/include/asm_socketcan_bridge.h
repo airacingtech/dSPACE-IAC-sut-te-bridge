@@ -173,6 +173,15 @@ namespace asm_socketcan_bridge
         rosgraph_msgs::msg::Clock simClockTime;
         rclcpp::TimerBase::SharedPtr updateSimClock_;
 
+        // Incremented on every fresh ASM snapshot in vesiCallback, with the wall clock sampled at
+        // that moment. Publishers that must not emit the same sim state twice compare the sequence
+        // against what they last sent, and stamp from the acquisition time rather than from the
+        // moment their own timer happened to fire. Guarded by can_bus_mutex_.
+        uint64_t canbusAcquisitionSeq_ = 0;
+        uint32_t acquisitionSec_ = 0;
+        uint32_t acquisitionNsec_ = 0;
+        std::atomic<uint64_t> lastPublishedGroundTruthSeq_{0};
+
         // Custom Structures
         VESIAPI api;
         ASMBus canBusStorage_{};

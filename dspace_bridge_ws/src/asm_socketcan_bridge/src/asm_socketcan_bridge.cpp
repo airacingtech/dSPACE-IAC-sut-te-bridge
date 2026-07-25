@@ -1354,6 +1354,16 @@ namespace asm_socketcan_bridge {
         if (canbus_raw_buffer_.size() >= required_canbus_size) {
           std::memcpy(&canBusStorage_, canbus_raw_buffer_.data(), required_canbus_size);
           this->canBus = &canBusStorage_;
+          ++this->canbusAcquisitionSeq_;
+          if (this->simModeEnabled) {
+            this->acquisitionSec_ = this->sec;
+            this->acquisitionNsec_ = this->nsec;
+          } else {
+            const auto now = std::chrono::system_clock::now().time_since_epoch();
+            const auto now_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now).count();
+            this->acquisitionSec_ = static_cast<uint32_t>(now_ns / 1000000000);
+            this->acquisitionNsec_ = static_cast<uint32_t>(now_ns % 1000000000);
+          }
           if (this->canBus->maneuverInfo.maneuverState == 3 &&
               !this->maneuverStarted) {
             this->maneuverStarted = true;
@@ -2414,15 +2424,22 @@ namespace asm_socketcan_bridge {
 
     groundTruthArray.header.frame_id = "world";
 
-    if(this->simModeEnabled)
+    // This timer and the V-ESI acquisition timer are independent wall timers of the same nominal
+    // period, so they beat against each other: without this gate the same ASM snapshot is published
+    // twice on some ticks and skipped on others, and downstream finite-differencing of GT position
+    // then yields 0 on a repeat and 2v after a skip. Publish a given sim state once, and stamp it
+    // with when the data was acquired rather than when this timer fired.
+    uint64_t acquisition_seq = 0;
     {
-      groundTruthArray.header.stamp.sec = this->sec;
-      groundTruthArray.header.stamp.nanosec = this->nsec;
+      std::shared_lock<std::shared_mutex> lock(can_bus_mutex_);
+      acquisition_seq = this->canbusAcquisitionSeq_;
+      groundTruthArray.header.stamp.sec = this->acquisitionSec_;
+      groundTruthArray.header.stamp.nanosec = this->acquisitionNsec_;
     }
-    else
-    {
-      groundTruthArray.header.stamp.sec = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()).time_since_epoch().count();
-      groundTruthArray.header.stamp.nanosec = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count() - (groundTruthArray.header.stamp.sec*1000000000);
+    // exchange, not compare-then-set: the publish timers share a Reentrant callback group, so two
+    // invocations can overlap and both must not emit the same sequence.
+    if (this->lastPublishedGroundTruthSeq_.exchange(acquisition_seq) == acquisition_seq) {
+      return;
     }
     if (this->verbosePrinting) {
       RCLCPP_INFO(this->get_logger(), "publishGroundTruthArray Checkpoint 1");
