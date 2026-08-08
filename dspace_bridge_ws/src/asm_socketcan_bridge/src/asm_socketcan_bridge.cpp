@@ -59,6 +59,19 @@ namespace {
   constexpr std::size_t kNovatelBottomIndex = 1;
   constexpr std::size_t kVectorNavGpsLeftIndex = 0;
   constexpr std::size_t kVectorNavGpsRightIndex = 1;
+
+  const char *novatelAntennaFrame(std::size_t index)
+  {
+    return index == kNovatelTopIndex ? "gps_antenna_top" : "gps_antenna_right";
+  }
+
+  const char *novatelImuFrame(std::size_t index)
+  {
+    return index == kNovatelTopIndex ? "novatel_b" : "novatel_a";
+  }
+  constexpr const char *kVectornavFrame = "vectornav";
+  constexpr const char *kNovatelInspvaFrame = "front_axle_middle";
+  constexpr const char *kGlobalFrame = "map";
   constexpr int32_t kCanWordBytes = 8;
 
   int32_t convert_to_mt_bit_ordering(uint32_t bit, uint32_t dlc = static_cast<uint32_t>(kCanWordBytes))
@@ -1676,7 +1689,7 @@ namespace asm_socketcan_bridge {
     if (!populated) {
       return;
     }
-    message.header.frame_id = (index == kNovatelTopIndex) ? "imu_top" : "imu_bottom";
+    message.header.frame_id = novatelImuFrame(index);
     fromStamp(message.header.stamp, message.nov_header.gps_week_number, message.nov_header.gps_week_milliseconds);
     publisher->publish(message);
   }
@@ -1729,7 +1742,7 @@ namespace asm_socketcan_bridge {
 
   void AsmSocketCanBridgeNode::populateGpsGroupMessage(vectornav_msgs::msg::GpsGroup &message, const gps_group &source)
   {
-    setHeader(message.header, "world");
+    setHeader(message.header, "");
     message.utc.year = source.utc_var.year;
     message.utc.month = source.utc_var.month;
     message.utc.day = source.utc_var.day;
@@ -1838,7 +1851,7 @@ namespace asm_socketcan_bridge {
     }
 
     foxgloveMap.position_covariance_type = 0;
-    setHeader(foxgloveMap.header, "world");
+    setHeader(foxgloveMap.header, kGlobalFrame);
 
     switch (fellowID) {
       case 0:
@@ -1901,7 +1914,7 @@ namespace asm_socketcan_bridge {
     if (!populated) {
       return;
     }
-    message.header.frame_id = (index == kNovatelTopIndex) ? "gps_top" : "gps_bottom";
+    message.header.frame_id = novatelAntennaFrame(index);
     fromStamp(message.header.stamp, message.nov_header.gps_week_number, message.nov_header.gps_week_milliseconds);
     publisher->publish(message);
   }
@@ -1932,7 +1945,7 @@ namespace asm_socketcan_bridge {
     if (!populated) {
       return;
     }
-    message.header.frame_id = (index == kNovatelTopIndex) ? "gps_top" : "gps_bottom";
+    message.header.frame_id = novatelAntennaFrame(index);
     fromStamp(message.header.stamp, message.nov_header.gps_week_number, message.nov_header.gps_week_milliseconds);
     publisher->publish(message);
   }
@@ -1963,7 +1976,7 @@ namespace asm_socketcan_bridge {
     if (!populated) {
       return;
     }
-    message.header.frame_id = (index == kNovatelTopIndex) ? "gps_top" : "gps_bottom";
+    message.header.frame_id = novatelAntennaFrame(index);
     fromStamp(message.header.stamp, message.nov_header.gps_week_number, message.nov_header.gps_week_milliseconds);
     publisher->publish(message);
   }
@@ -1994,7 +2007,7 @@ namespace asm_socketcan_bridge {
     if (!populated) {
       return;
     }
-    message.header.frame_id = (index == kNovatelTopIndex) ? "gps_top" : "gps_bottom";
+    message.header.frame_id = kNovatelInspvaFrame;
     fromStamp(message.header.stamp, message.nov_header.gps_week_number, message.nov_header.gps_week_milliseconds);
     publisher->publish(message);
   }
@@ -2025,7 +2038,7 @@ namespace asm_socketcan_bridge {
     if (!populated) {
       return;
     }
-    message.header.frame_id = (index == kNovatelTopIndex) ? "gps_top" : "gps_bottom";
+    message.header.frame_id = novatelAntennaFrame(index);
     fromStamp(message.header.stamp, message.nov_header.gps_week_number, message.nov_header.gps_week_milliseconds);
     publisher->publish(message);
   }
@@ -2056,7 +2069,7 @@ namespace asm_socketcan_bridge {
     if (!populated) {
       return;
     }
-    message.header.frame_id = (index == kNovatelTopIndex) ? "imu_top" : "imu_bottom";
+    message.header.frame_id = novatelImuFrame(index);
     fromStamp(message.header.stamp, message.nov_header.gps_week_number, message.nov_header.gps_week_milliseconds);
     publisher->publish(message);
   }
@@ -2087,7 +2100,7 @@ namespace asm_socketcan_bridge {
     if (!populated) {
       return;
     }
-    message.header.frame_id = (index == kNovatelTopIndex) ? "imu_top" : "imu_bottom";
+    message.header.frame_id = novatelImuFrame(index);
     publisher->publish(message);
   }
 
@@ -2107,7 +2120,7 @@ namespace asm_socketcan_bridge {
   void AsmSocketCanBridgeNode::publish_vectornav_attitude_group()
   {
     vectornav_msgs::msg::AttitudeGroup attitudeGroup;
-    setHeader(attitudeGroup.header, "world");
+    setHeader(attitudeGroup.header, kVectornavFrame);
     bool populated = false;
     if (!withCanBusShared([&](const ASMBus &bus) {
       const auto &source = bus.vector_nav_vn1_var.attitude_group_var;
@@ -2162,7 +2175,7 @@ namespace asm_socketcan_bridge {
   void AsmSocketCanBridgeNode::publish_vectornav_common_group()
   {
     vectornav_msgs::msg::CommonGroup commonGroup;
-    setHeader(commonGroup.header, "world");
+    setHeader(commonGroup.header, kVectornavFrame);
     bool populated = false;
     if (!withCanBusShared([&](const ASMBus &bus) {
       const auto &source = bus.vector_nav_vn1_var.common_group_var;
@@ -2232,7 +2245,7 @@ namespace asm_socketcan_bridge {
   void AsmSocketCanBridgeNode::publish_vectornav_imu_group()
   {
     vectornav_msgs::msg::ImuGroup imuGroup;
-    setHeader(imuGroup.header, "world");
+    setHeader(imuGroup.header, kVectornavFrame);
     bool populated = false;
     if (!withCanBusShared([&](const ASMBus &bus) {
       const auto &source = bus.vector_nav_vn1_var.imu_group_var;
@@ -2314,7 +2327,7 @@ namespace asm_socketcan_bridge {
   void AsmSocketCanBridgeNode::publish_vectornav_ins_group()
   {
     vectornav_msgs::msg::InsGroup insGroup;
-    setHeader(insGroup.header, "vectornav");
+    setHeader(insGroup.header, "cg");
     bool populated = false;
     if (!withCanBusShared([&](const ASMBus &bus) {
       const auto &source = bus.vector_nav_vn1_var.ins_group_var;
@@ -2412,7 +2425,7 @@ namespace asm_socketcan_bridge {
 
     auto groundTruthArray = autonoma_msgs::msg::GroundTruthArray();
 
-    groundTruthArray.header.frame_id = "world";
+    groundTruthArray.header.frame_id = kGlobalFrame;
 
     if(this->simModeEnabled)
     {
@@ -3252,7 +3265,7 @@ namespace asm_socketcan_bridge {
     if (!populated) {
       return;
     }
-    message.header.frame_id = (index == kNovatelTopIndex) ? "gps_top" : "gps_bottom";
+    message.header.frame_id = novatelAntennaFrame(index);
     fromStamp(message.header.stamp, message.nov_header.gps_week_number, message.nov_header.gps_week_milliseconds);
     publisher->publish(message);
   }
