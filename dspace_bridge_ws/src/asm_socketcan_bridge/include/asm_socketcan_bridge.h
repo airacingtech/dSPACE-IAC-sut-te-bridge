@@ -29,7 +29,7 @@
 #include <rclcpp/create_timer.hpp>
 #include <rclcpp/executors/multi_threaded_executor.hpp>
 
-#include <tf2/LinearMath/Quaternion.h>
+#include <tf2/LinearMath/Quaternion.hpp>
 
 #include <sys/ioctl.h>
 #include <linux/can.h>

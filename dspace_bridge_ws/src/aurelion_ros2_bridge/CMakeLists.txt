@@ -40,10 +40,9 @@ add_executable(
 
 link_directories(${VESIAPI_LIB_DIR})
 
-ament_target_dependencies(
-  ${exe_name}
-  ${dependencies}
-  )
+foreach(dependency ${dependencies})
+  target_link_libraries(${exe_name} ${${dependency}_TARGETS})
+endforeach()
 
 target_link_libraries(
   ${exe_name}

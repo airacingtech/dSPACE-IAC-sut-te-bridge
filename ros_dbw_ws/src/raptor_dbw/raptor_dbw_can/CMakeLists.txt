@@ -25,8 +25,6 @@ ament_auto_add_executable(${PROJECT_NAME}_node
   src/DbwNode.cpp
 )
 
-ament_target_dependencies(raptor_dbw_can_node npc_controller_msgs)
-
 target_compile_options(${PROJECT_NAME}_node PRIVATE -Wno-unused-function)
 
 if(BUILD_TESTING)

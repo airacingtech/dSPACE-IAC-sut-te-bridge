@@ -363,7 +363,7 @@ int main(int argc, char *argv[])
     rclcpp::init(argc, argv);
 
     rclcpp::Node::SharedPtr AurelionRos2BridgeNodePtr = std::make_shared<aurelion_ros2_bridge::AurelionRos2BridgeNode>();
-    rclcpp::executors::StaticSingleThreadedExecutor executor;
+    rclcpp::executors::SingleThreadedExecutor executor;
     executor.add_node(AurelionRos2BridgeNodePtr);
     executor.spin();
     rclcpp::shutdown();

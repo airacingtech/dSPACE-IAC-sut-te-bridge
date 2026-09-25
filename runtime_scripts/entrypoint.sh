@@ -48,7 +48,7 @@ elif  [ "$BRIDGE_TYPE" = "AURELION_ROS2" ]; then
     exec ros2 run aurelion_ros2_bridge AurelionRos2BridgeNode --ros-args -p use_sim_time:="$SIM_CLOCK_MODE"
 
 elif  [ "$BRIDGE_TYPE" = "CAN_DBW" ]; then
-    source /opt/ros/humble/local_setup.bash
+    source /opt/ros/$ROS_DISTRO/local_setup.bash
     source /root/ros_dbw_ws/install/local_setup.sh
     cd /root/ros_dbw_ws/
     ros2 launch raptor_dbw_can raptor_dbw_can_launch_entire.py

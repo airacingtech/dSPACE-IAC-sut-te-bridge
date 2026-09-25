@@ -3,9 +3,9 @@ name: AI Racing Tech dSpace IAC sut-te-bridge Docker
 on:
   workflow_dispatch:
   push:
-    branches: ["art-jazzy"]
+    branches: ["art-lyrical"]
   pull_request:
-    branches: ["art-jazzy"]
+    branches: ["art-lyrical"]
   repository_dispatch:
     types: ["trigger-dspace-workflow"]
 

@@ -3,7 +3,6 @@ FROM $BASE_IMAGE AS dspace_ros_base
 # Adds all dspace specific dependencies to a ros base image.
 SHELL ["/bin/bash", "-c"]
 
-ENV ROS_DISTRO=jazzy
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 ENV ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET
 
