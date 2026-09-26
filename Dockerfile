@@ -27,8 +27,11 @@ RUN source /opt/ros/$ROS_DISTRO/local_setup.bash && \
 
 FROM dspace_ros_base AS dspace_bridge_base
 # Add V-ESI API to enable message transfer
-RUN mkdir -p /opt/VESI/lib 
+RUN mkdir -p /opt/VESI/lib
 COPY V-ESI-API/linux/libVESIAPI.so /opt/VESI/lib/
+# aurelion_ros2_bridge needs the V-ESI API shipped with AURELION 25.4 to decode its sensor data
+# (lidar/radar deserializer v5); the other bridges keep the one above, matching the sim-pack V-ESI.
+COPY V-ESI-API/linux-aurelion-25.4/libVESIAPI.so /opt/VESI/aurelion/lib/
 
 FROM dspace_bridge_base AS dspace_bridge_dev
 # Prepares image to mount and build source code into the container during runtime (development usecase)

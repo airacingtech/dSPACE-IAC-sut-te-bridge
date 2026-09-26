@@ -1,10 +1,9 @@
 #pragma once
 
 #include "PP_Radar_Detections_Base_Detection.h"
-#include "OptixSensorBaseHeader.h"
-#include "DsHostDeviceMacro.h"
+#include <Deserializer/OptixSensorBaseHeader.h>
 
-namespace dSPACE	//NOLINT
+namespace dSPACE
 {
 	namespace PPRadarDetectionsDeserializer
 	{
@@ -13,19 +12,19 @@ namespace dSPACE	//NOLINT
 		//ver 4: Deserializer unification
 		//ver 5: Instance IDs
 		//ver 6: Simulation time + version handling
-		static constexpr DeserializerBase::DeserializerVersion Version =
+		static constexpr DeserializerBase::FDeserializerVersion Version =
 		{
 			6,	// Major
 			0	// Minor
 		};
 
-		struct Detection : public PPRadarDetectionsBase::Detection
+#pragma pack(push, 1)
+		struct FDetection : public PPRadarDetectionsBase::FDetection
 		{
 			//just use default fields.
 		};
 
-#pragma pack(push, 1)
-		struct RadarDetectionsHeader : public DeserializerBase::OptixSensorBaseHeader
+		struct FRadarDetectionsHeader : public DeserializerBase::FOptixSensorBaseHeader
 		{
 			uint16_t NumDetections{};
 		};

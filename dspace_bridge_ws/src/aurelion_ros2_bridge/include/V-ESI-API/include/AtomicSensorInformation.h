@@ -97,19 +97,19 @@ class VESILIBRARYEXPORT AtomicSensorInformation
         \param rxAntennaCount Number of RX-antennas of the configured sensor
         \sa DefaultPostProcessor_Deserializer::DsCCompositumRadarFrame
         */
-        void getSensorData(CompositeRadarFrame* sensor_data);
+        void getSensorData(FCompositeRadarFrame* sensor_data);
         //! Function to get the stored sensor data as radar detection list. The corresponding radar-postprocessing has to be selected within MotionDesk. Throws if the requested sensor data is not of type: Radar
         /*!
         \param sensor_data Vector that stores requested radar detecions
-        \sa PP_RadarDetectionsList_Deserializer::Detection
+        \sa PP_RadarDetectionsList_Deserializer::FDetection
 		*/
-        void getSensorData(std::vector<Detection>* sensor_data);
+        void getSensorData(std::vector<FDetection>* sensor_data);
 		//! Function to get the stored sensor data as raw radar adc samples. The corresponding radar-postprocessing has to be selected within MotionDesk. Throws if the requested sensor data is not of type: Radar
 		/*!
 		\param sensor_data Vector that stores requested radar raw adcsamples
-		\sa PP_RadarDetectionsList_Deserializer::Detection
+		\sa PP_RadarDetectionsList_Deserializer::FDetection
 		*/
-		void getSensorData(std::vector<AdcSample>* sensor_data);
+		void getSensorData(std::vector<FAdcSample>* sensor_data);
 
         //! Function to get the stored sensor data lidar as lidar point cloud. Throws if the requested sensor data is not of type: Lidar
         /*!
@@ -117,12 +117,12 @@ class VESILIBRARYEXPORT AtomicSensorInformation
         \param virtualSensorIndex Index of the virtual lidar sensor that is supposed to be requested. (If there is only one virtual lidar sensor, virtualSensorIndex=0 is to be used)
         \sa Lidar_DefaultPostProcessor_Deserializer::DsCCompositeLidarFrame
         */
-        void getSensorData(CompositeLidarFrame* sensor_data);
+        void getSensorData(FCompositeLidarFrame* sensor_data);
         //! Function to get the stored sensor data as ultrasonic structure. Throws if the requested sensor data is not of type: Ultrasonic
         /*!
         \param sensor_data Reference to a struct that stores requested ultrasonic data
         */
-        void getSensorData(CompositeUltrasonicFrame* sensor_data);
+        void getSensorData(FCompositeUltrasonicFrame* sensor_data);
 
 
 

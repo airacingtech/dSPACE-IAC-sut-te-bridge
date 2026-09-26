@@ -5,40 +5,35 @@
 #include <ostream>
 #include <iomanip>
 
-#include "OptixMaterial.h"
-#include "SemanticSegmentationIds.h"
-#include "OptixSensorBaseHeader.h"
+#include <SensorUtilities/OptixSensor/OptixMaterial.h>
+#include <SensorUtilities/OptixSensor/SemanticSegmentationIds.h>
+#include <Deserializer/OptixSensorBaseHeader.h>
 
-namespace dSPACE	// NOLINT
+namespace dSPACE
 {
 	namespace PPUltrasonicPropagationPathsDeserializer
 	{
 		static constexpr uint32_t FormatIdentifier = 0xABBBBB11;
 
 		//ver 1: initial version
-		static constexpr DeserializerBase::DeserializerVersion Version =
+		static constexpr DeserializerBase::FDeserializerVersion Version =
 		{
 			1,	// Major
 			0	// Minor
 		};
 
 #pragma pack(push, 1) //pack structs to enable fast std::memcpy from img data without padding risk
-		struct UltrasonicPropagationPathHeader : DeserializerBase::OptixSensorBaseHeader
+		struct FUltrasonicPropagationPathHeader : DeserializerBase::FOptixSensorBaseHeader
 		{
 			uint32_t NumReceivers;
-
-			DS_HOSTDEVICE static inline constexpr size_t GetHeaderSize()
-			{
-				return sizeof(UltrasonicPropagationPathHeader);
-			}
 		};
 
 		// Vector of three floats.
-		struct Vec3f
+		struct FVec3f
 		{
 			float X, Y, Z;
 
-			friend std::ostream& operator<<(std::ostream& o, const Vec3f& d)
+			friend std::ostream& operator<<(std::ostream& o, const FVec3f& d)
 			{
 				o << '[' << d.X << ',' << d.Y << ',' << d.Z << ']';
 				return o;
@@ -46,13 +41,13 @@ namespace dSPACE	// NOLINT
 		};
 
 		// Stores a single interaction point of an ultrasonic path.
-		struct CompositeUltrasonicFrameReceivedDataPathHop
+		struct FCompositeUltrasonicFrameReceivedDataPathHop
 		{
-			Vec3f Position; //XYZ-Position of this hop in the coordinate system of the receiving RX - Sensor of the ray path, in meters. (Note: Unlike raytracer output, these are cartesian coordinates and not spherical coordinates)
+			FVec3f Position; //XYZ-Position of this hop in the coordinate system of the receiving RX - Sensor of the ray path, in meters. (Note: Unlike raytracer output, these are cartesian coordinates and not spherical coordinates)
 			materialId_t MaterialId; //The material ID of the hit surface for this hop
-			SemanticSegmentationIds GroundTruthData; //Semantic Segmentation IDs of this hop.
+			FSemanticSegmentationIds GroundTruthData; //Semantic Segmentation IDs of this hop.
 
-			friend std::ostream& operator<<(std::ostream& o, const CompositeUltrasonicFrameReceivedDataPathHop& d)
+			friend std::ostream& operator<<(std::ostream& o, const FCompositeUltrasonicFrameReceivedDataPathHop& d)
 			{
 				o << "\t\t\tPosition: " << d.Position << '\n';
 				o << "\t\t\tMaterial ID: " << d.MaterialId << '\n';
@@ -65,15 +60,15 @@ namespace dSPACE	// NOLINT
 #pragma pack(pop)
 
 		// Stores a single ultrasonic path, including all interaction points.
-		struct CompositeUltrasonicFrameReceivedDataPath
+		struct FCompositeUltrasonicFrameReceivedDataPath
 		{
-			std::vector<CompositeUltrasonicFrameReceivedDataPathHop> Hops;	// a list of all reflection points (hops) of this propagation path. Does not include emitter and receiver.
+			std::vector<FCompositeUltrasonicFrameReceivedDataPathHop> Hops;	// a list of all reflection points (hops) of this propagation path. Does not include emitter and receiver.
 			float SoundIntensityWattPerSquaremeter;							// the sound intensity in Watt per Squaremeter
 			float PathLengthMeter;											// the total path length in meter
 			uint8_t EmitterId;												// the id of the emitter of the path
 			uint8_t ReceiverId;												// the id of the receiver of the path
 
-			friend std::ostream& operator<<(std::ostream& o, const CompositeUltrasonicFrameReceivedDataPath& d)
+			friend std::ostream& operator<<(std::ostream& o, const FCompositeUltrasonicFrameReceivedDataPath& d)
 			{
 				o << "\t\tSource Emitter Id: " << unsigned(d.EmitterId) << '\n';
 				o << "\t\tReceiving Receiver Id: " << unsigned(d.ReceiverId) << '\n';
@@ -90,11 +85,11 @@ namespace dSPACE	// NOLINT
 		};
 
 		// Stores all ultrasonic data received by a specific receiver.
-		struct CompositeUltrasonicFrameReceivedData
+		struct FCompositeUltrasonicFrameReceivedData
 		{
-			std::vector<CompositeUltrasonicFrameReceivedDataPath> Paths;
+			std::vector<FCompositeUltrasonicFrameReceivedDataPath> Paths;
 
-			friend std::ostream& operator<<(std::ostream& o, const CompositeUltrasonicFrameReceivedData& d)
+			friend std::ostream& operator<<(std::ostream& o, const FCompositeUltrasonicFrameReceivedData& d)
 			{
 				o << "\tPath Count: " << d.Paths.size() << '\n';
 				for (size_t i = 0; i < d.Paths.size(); ++i)
@@ -107,11 +102,11 @@ namespace dSPACE	// NOLINT
 		};
 
 		// Stores an entire ultrasonic data frame.
-		struct CompositeUltrasonicFrame
+		struct FCompositeUltrasonicFrame
 		{
-			std::vector<CompositeUltrasonicFrameReceivedData> ReceivedData;
+			std::vector<FCompositeUltrasonicFrameReceivedData> ReceivedData;
 
-			friend std::ostream& operator<<(std::ostream& o, const CompositeUltrasonicFrame& d)
+			friend std::ostream& operator<<(std::ostream& o, const FCompositeUltrasonicFrame& d)
 			{
 				o << "Receiver Count: " << d.ReceivedData.size() << '\n';
 

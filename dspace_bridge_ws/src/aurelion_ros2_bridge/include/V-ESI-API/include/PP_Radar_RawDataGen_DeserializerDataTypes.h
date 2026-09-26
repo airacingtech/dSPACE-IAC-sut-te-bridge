@@ -2,10 +2,9 @@
 
 #include <cstdint>
 #include <iostream>
-#include "OptixSensorBaseHeader.h"
-#include "DsHostDeviceMacro.h"
+#include <Deserializer/OptixSensorBaseHeader.h>
 
-namespace dSPACE	// NOLINT
+namespace dSPACE
 {
 	namespace PPRadarRawDataGenDeserializer
 	{
@@ -13,45 +12,40 @@ namespace dSPACE	// NOLINT
 
 		//ver 3: Deserializer unification
 		//ver 4: Version handling
-		static constexpr DeserializerBase::DeserializerVersion Version =
+		static constexpr DeserializerBase::FDeserializerVersion Version =
 		{
 			4,	// Major
 			0	// Minor
 		};
 
-		struct AdcSample
+#pragma pack(push, 1)
+		struct FAdcSample
 		{
 			float Real = 0.0f;
 			float Imag = 0.0f;
 
 			//for unknown reason, clang needs ctors for initializing this type
-			inline AdcSample() = default;
-			inline AdcSample(float Real, float Imag) : Real(Real), Imag(Imag) {}
+			inline FAdcSample() = default;
+			inline FAdcSample(float Real, float Imag) : Real(Real), Imag(Imag) {}
 
-			friend std::ostream& operator<<(std::ostream& Os, const AdcSample& Sample)
+			friend std::ostream& operator<<(std::ostream& Os, const FAdcSample& Sample)
 			{
 				Os << Sample.Real << "+" << Sample.Imag << "i";
 				return Os;
 			}
 		};
 
-#pragma pack(push, 1)
-		struct RawDataConfig
+		struct FRawDataConfig
 		{
 			uint32_t NumRxas = 0;
 			uint32_t NumChirps = 0;
 			uint32_t NumSamples = 0;
-			bool ReadComplexSamples = true;
+			bool bReadComplexSamples = true;
 		};
 
-		struct RadarRawDataGenHeader : public DeserializerBase::OptixSensorBaseHeader
+		struct FRadarRawDataGenHeader : public DeserializerBase::FOptixSensorBaseHeader
 		{
-			RawDataConfig Conf;
-
-			DS_HOSTDEVICE static inline constexpr size_t GetHeaderSize()
-			{
-				return sizeof(DeserializerBase::OptixSensorBaseHeader) + sizeof(RawDataConfig);
-			}
+			FRawDataConfig Conf;
 		};
 #pragma pack(pop)
 	}

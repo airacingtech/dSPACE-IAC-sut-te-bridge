@@ -3,10 +3,10 @@
 #include <cstdint>
 #include <vector>
 
-#include "SemanticSegmentationIds.h"
-#include "OptixSensorBaseHeader.h"
+#include <SensorUtilities/OptixSensor/SemanticSegmentationIds.h>
+#include <Deserializer/OptixSensorBaseHeader.h>
 
-namespace dSPACE	//NOLINT
+namespace dSPACE
 {
 	namespace PPLidarPointCloudDeserializer
 	{
@@ -15,14 +15,14 @@ namespace dSPACE	//NOLINT
 		//ver 4: Deserializer unification
 		//ver 5: Version handling
 		//ver 5.1: Fix header parsing
-		static constexpr DeserializerBase::DeserializerVersion Version =
+		static constexpr DeserializerBase::FDeserializerVersion Version =
 		{
 			5,	// Major
 			1	// Minor
 		};
 
 #pragma pack(push, 1)
-		struct PointCloudLidarPoint
+		struct FPointCloudLidarPoint
 		{
 			float Normal[3];			// normal vector of surface hit, normalized
 			float Azimuth;				// in degree, clockwise (!)
@@ -33,45 +33,45 @@ namespace dSPACE	//NOLINT
 			float OpticalPower;		// rescaled to [0,1]. Multiplication with transmit power yields receive power.
 			float TimeOffset;			// in ms, offset from simulation time
 
-			SemanticSegmentationIds GroundTruthData; //Semantic Segmentation IDs of this point.
+			FSemanticSegmentationIds GroundTruthData; //Semantic Segmentation IDs of this point.
 			uint32_t RayID;
 			uint16_t MaterialID;
 		};
 #pragma pack(pop)
 
 #pragma pack(push, 1)
-		struct PointCloudOutputModes
+		struct FPointCloudOutputModes
 		{
-			bool Normal;
-			bool Azimuth;
-			bool Elevation;
-			bool Distance;
-			bool RelativeVelocity;
-			bool Reflectivity;
-			bool OpticalPower;
-			bool TimeOffset;
+			bool bNormal;
+			bool bAzimuth;
+			bool bElevation;
+			bool bDistance;
+			bool bRelativeVelocity;
+			bool bReflectivity;
+			bool bOpticalPower;
+			bool bTimeOffset;
 
-			bool MaterialID;
-			bool ClassID;
-			bool InstanceID;
-			bool RayID;
+			bool bMaterialID;
+			bool bClassID;
+			bool bInstanceID;
+			bool bRayID;
 
 			size_t GetLidarPointSize() const
 			{
 				size_t size = 0;
 
-				size += this->Normal ? sizeof(PointCloudLidarPoint::Normal) : 0;
-				size += this->Azimuth ? sizeof(PointCloudLidarPoint::Azimuth) : 0;
-				size += this->Elevation ? sizeof(PointCloudLidarPoint::Elevation) : 0;
-				size += this->Distance ? sizeof(PointCloudLidarPoint::Distance) : 0;
-				size += this->TimeOffset ? sizeof(PointCloudLidarPoint::TimeOffset) : 0;
-				size += this->RelativeVelocity ? sizeof(PointCloudLidarPoint::RelativeVelocity) : 0;
-				size += this->Reflectivity ? sizeof(PointCloudLidarPoint::Reflectivity) : 0;
-				size += this->OpticalPower ? sizeof(PointCloudLidarPoint::OpticalPower) : 0;
-				size += this->MaterialID ? sizeof(PointCloudLidarPoint::MaterialID) : 0;
-				size += this->ClassID ? sizeof(PointCloudLidarPoint::GroundTruthData.ClassID) : 0;
-				size += this->InstanceID ? sizeof(PointCloudLidarPoint::GroundTruthData.InstanceID) : 0;
-				size += this->RayID ? sizeof(PointCloudLidarPoint::RayID) : 0;
+				size += bNormal ? sizeof(FPointCloudLidarPoint::Normal) : 0;
+				size += bAzimuth ? sizeof(FPointCloudLidarPoint::Azimuth) : 0;
+				size += bElevation ? sizeof(FPointCloudLidarPoint::Elevation) : 0;
+				size += bDistance ? sizeof(FPointCloudLidarPoint::Distance) : 0;
+				size += bTimeOffset ? sizeof(FPointCloudLidarPoint::TimeOffset) : 0;
+				size += bRelativeVelocity ? sizeof(FPointCloudLidarPoint::RelativeVelocity) : 0;
+				size += bReflectivity ? sizeof(FPointCloudLidarPoint::Reflectivity) : 0;
+				size += bOpticalPower ? sizeof(FPointCloudLidarPoint::OpticalPower) : 0;
+				size += bMaterialID ? sizeof(FPointCloudLidarPoint::MaterialID) : 0;
+				size += bClassID ? sizeof(FPointCloudLidarPoint::GroundTruthData.ClassID) : 0;
+				size += bInstanceID ? sizeof(FPointCloudLidarPoint::GroundTruthData.InstanceID) : 0;
+				size += bRayID ? sizeof(FPointCloudLidarPoint::RayID) : 0;
 
 				return size;
 			}
@@ -79,23 +79,18 @@ namespace dSPACE	//NOLINT
 #pragma pack(pop)
 
 #pragma pack(push, 1) 
-		struct LidarPointCloudHeader : DeserializerBase::OptixSensorBaseHeader
+		struct FLidarPointCloudHeader : DeserializerBase::FOptixSensorBaseHeader
 		{
 			uint32_t Checksum;								// CRC32 checksum if enabled, otherwise zero.
-			PointCloudOutputModes Output;					// Defines what kind of information is valid to read per point.
+			FPointCloudOutputModes Output;					// Defines what kind of information is valid to read per point.
 			uint32_t NumPoints;								// Number of points within frame.
-			uint32_t MaxNumOfPoints;						// Maximal possible number of points under current configuration (max number of rays and returns per ray). 
-			
-			DS_HOSTDEVICE static inline constexpr size_t GetHeaderSize()
-			{
-				return sizeof(LidarPointCloudHeader);
-			}
+			uint32_t MaxNumOfPoints;						// Maximal possible number of points under current configuration (max number of rays and returns per ray).
 		};
 #pragma pack(pop)
 
-		struct CompositeLidarFrame
+		struct FCompositeLidarFrame
 		{
-			std::vector<PointCloudLidarPoint> LidarPoints;
+			std::vector<FPointCloudLidarPoint> LidarPoints;
 		};
 	}
 }

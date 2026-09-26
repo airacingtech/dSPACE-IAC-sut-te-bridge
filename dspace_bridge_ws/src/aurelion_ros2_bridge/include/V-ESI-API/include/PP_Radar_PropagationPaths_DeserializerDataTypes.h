@@ -5,11 +5,11 @@
 #include <ostream>
 #include <iomanip>
 
-#include "OptixMaterial.h"
-#include "SemanticSegmentationIds.h"
-#include "OptixSensorBaseHeader.h"
+#include <SensorUtilities/OptixSensor/OptixMaterial.h>
+#include <SensorUtilities/OptixSensor/SemanticSegmentationIds.h>
+#include <Deserializer/OptixSensorBaseHeader.h>
 
-namespace dSPACE	// NOLINT
+namespace dSPACE
 {
 	namespace PPRadarPropagationPathsDeserializer
 	{
@@ -17,29 +17,24 @@ namespace dSPACE	// NOLINT
 
 		//ver 8: Deserializer unification
 		//ver 9: Version handling
-		static constexpr DeserializerBase::DeserializerVersion Version =
+		static constexpr DeserializerBase::FDeserializerVersion Version =
 		{
 			9,	// Major
 			0	// Minor
 		};
 
 #pragma pack(push, 1) //pack structs to enable fast std::memcpy from img data without padding risk
-		struct RadarPropagationPathHeader : public DeserializerBase::OptixSensorBaseHeader
+		struct FRadarPropagationPathHeader : public DeserializerBase::FOptixSensorBaseHeader
 		{
 			uint32_t NumRxas;
-
-			DS_HOSTDEVICE static inline constexpr size_t GetHeaderSize()
-			{
-				return sizeof(RadarPropagationPathHeader);
-			}
 		};
 
 		// Vector of three floats.
-		struct Vec3f
+		struct FVec3f
 		{
 			float X, Y, Z;
 
-			friend std::ostream& operator<<(std::ostream& Os, const Vec3f& Vec)
+			friend std::ostream& operator<<(std::ostream& Os, const FVec3f& Vec)
 			{
 				Os << '[' << Vec.X << ',' << Vec.Y << ',' << Vec.Z << ']';
 				return Os;
@@ -47,14 +42,14 @@ namespace dSPACE	// NOLINT
 		};
 
 		// A single interaction point of a radar path.
-		struct CompositeRadarFrameRxaDataPathHop
+		struct FCompositeRadarFrameRxaDataPathHop
 		{
-			Vec3f Position; //XYZ-Position of this hop in the coordinate system of the receiving RX - Antenna of the ray path, in meters. (Note: Unlike raytracer output, these are cartesian coordinates and not spherical coordinates)
-			Vec3f Velocity; //XYZ-Velocity of this hop relative to the receiving antenna in meters/second. Please note that the values are calculated for the antenna coordinate system.
+			FVec3f Position; //XYZ-Position of this hop in the coordinate system of the receiving RX - Antenna of the ray path, in meters. (Note: Unlike raytracer output, these are cartesian coordinates and not spherical coordinates)
+			FVec3f Velocity; //XYZ-Velocity of this hop relative to the receiving antenna in meters/second. Please note that the values are calculated for the antenna coordinate system.
 			materialId_t MaterialId; //The material ID of the hit surface for this hop
-			SemanticSegmentationIds GroundTruthData; //Semantic Segmentation IDs of this hop.
+			FSemanticSegmentationIds GroundTruthData; //Semantic Segmentation IDs of this hop.
 
-			friend std::ostream& operator<<(std::ostream& Os, const CompositeRadarFrameRxaDataPathHop& Hop)
+			friend std::ostream& operator<<(std::ostream& Os, const FCompositeRadarFrameRxaDataPathHop& Hop)
 			{
 				Os << "\t\t\tPosition: " << Hop.Position << '\n';
 				Os << "\t\t\tVelocity: " << Hop.Velocity << '\n';
@@ -67,22 +62,22 @@ namespace dSPACE	// NOLINT
 		};
 #pragma pack(pop)
 
-		struct ComplexFloat
+		struct FComplexFloat
 		{
 			float Real, Imag;
 
-			friend std::ostream& operator<<(std::ostream& Os, const ComplexFloat& Value)
+			friend std::ostream& operator<<(std::ostream& Os, const FComplexFloat& Value)
 			{
 				Os << Value.Real << "+" << Value.Imag << "i";
 				return Os;
 			}
 		};
 
-		struct ComplexEField
+		struct FComplexEField
 		{
-			ComplexFloat X, Y, Z;
+			FComplexFloat X, Y, Z;
 
-			friend std::ostream& operator<<(std::ostream& Os, const ComplexEField& Efield)
+			friend std::ostream& operator<<(std::ostream& Os, const FComplexEField& Efield)
 			{
 				Os << "(";
 				Os << Efield.X;
@@ -96,11 +91,11 @@ namespace dSPACE	// NOLINT
 			}
 		};
 
-		struct EFieldsFromExcitation
+		struct FEFieldsFromExcitation
 		{
-			ComplexEField EFieldFromHExcitation, EFieldFromVExcitation;
+			FComplexEField EFieldFromHExcitation, EFieldFromVExcitation;
 
-			friend std::ostream& operator<<(std::ostream& Os, const EFieldsFromExcitation& Efields)
+			friend std::ostream& operator<<(std::ostream& Os, const FEFieldsFromExcitation& Efields)
 			{
 				Os << "[";
 				Os << Efields.EFieldFromHExcitation;
@@ -113,15 +108,15 @@ namespace dSPACE	// NOLINT
 		};
 
 		// Stores a single radar path, including all interaction points.
-		struct CompositeRadarFrameRxaDataPath
+		struct FCompositeRadarFrameRxaDataPath
 		{
-			std::vector<CompositeRadarFrameRxaDataPathHop> Hops; //A list of all reflection points (hops) of this propagation path. Does not include TX- and RX-Antenna. 
-			EFieldsFromExcitation EFields;
+			std::vector<FCompositeRadarFrameRxaDataPathHop> Hops; //A list of all reflection points (hops) of this propagation path. Does not include TX- and RX-Antenna. 
+			FEFieldsFromExcitation EFields;
 			float Length; //see raytracer channel impulse response output.
 			float DopplerSpeed; //see raytracer channel impulse response output.
 			uint8_t SourceTxAntennaId; //see raytracer channel impulse response output.
 
-			friend std::ostream& operator<<(std::ostream& Os, const CompositeRadarFrameRxaDataPath& Path)
+			friend std::ostream& operator<<(std::ostream& Os, const FCompositeRadarFrameRxaDataPath& Path)
 			{
 				Os << "\t\teFields: " << Path.EFields << '\n';
 				Os << "\t\tPath Length: " << Path.Length << '\n';
@@ -137,11 +132,11 @@ namespace dSPACE	// NOLINT
 		};
 
 		// Stores all radar data received by a specific RX-Antenna.
-		struct CompositeRadarFrameRxaData
+		struct FCompositeRadarFrameRxaData
 		{
-			std::vector<CompositeRadarFrameRxaDataPath> Paths;
+			std::vector<FCompositeRadarFrameRxaDataPath> Paths;
 
-			friend std::ostream& operator<<(std::ostream& Os, const CompositeRadarFrameRxaData& Data)
+			friend std::ostream& operator<<(std::ostream& Os, const FCompositeRadarFrameRxaData& Data)
 			{
 				Os << "\tPath Count: " << Data.Paths.size() << '\n';
 				for (size_t i = 0; i < Data.Paths.size(); ++i)
@@ -154,11 +149,11 @@ namespace dSPACE	// NOLINT
 		};
 
 		// Stores an entire radar data frame.
-		struct CompositeRadarFrame
+		struct FCompositeRadarFrame
 		{
-			std::vector<CompositeRadarFrameRxaData> RxaData;
+			std::vector<FCompositeRadarFrameRxaData> RxaData;
 
-			friend std::ostream& operator<<(std::ostream& Os, const CompositeRadarFrame& Frame)
+			friend std::ostream& operator<<(std::ostream& Os, const FCompositeRadarFrame& Frame)
 			{
 				Os << "RXA Count: " << Frame.RxaData.size() << '\n';
 

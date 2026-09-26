@@ -162,7 +162,7 @@ namespace aurelion_ros2_bridge {
     this->sensorApi.requestSensorData(this->sensorId, &sensorData);
 
     // Write data into lidar frame
-    CompositeLidarFrame lidarFrame;
+    FCompositeLidarFrame lidarFrame;
     sensorData.getSensorData(&lidarFrame);
 
     // Print some data points
@@ -171,7 +171,7 @@ namespace aurelion_ros2_bridge {
       std::cout << "\tRequested lidar sensor with ID " << unsigned(sensorId) << " at maneuver time: " << sensorData.getSensorHeader().m_uiTimeStamp << "\xE6s" << std::endl;
       for (size_t i = 0; i < lidarFrame.LidarPoints.size() && i < this->MAX_SENSOR_RESULT_PRINTOUTS; i++)
       {
-          const PointCloudLidarPoint& point = lidarFrame.LidarPoints[i];
+          const FPointCloudLidarPoint& point = lidarFrame.LidarPoints[i];
           std::cout << "\t\tP[" << i << "] azimuth=" << point.Azimuth << " elevation=" << point.Elevation << " distance=" << point.Distance << std::endl;
       }
     }
@@ -215,7 +215,7 @@ namespace aurelion_ros2_bridge {
     // Convert to Cartesian coordinates
     for (size_t i = 0; i < lidarData.width; ++i, ++iter_x, ++iter_y, ++iter_z, ++iter_azi, ++iter_ele, ++iter_dep, ++iter_refl)
     {
-        const PointCloudLidarPoint& point = lidarFrame.LidarPoints[i];
+        const FPointCloudLidarPoint& point = lidarFrame.LidarPoints[i];
         float azimuthRad   = point.Azimuth * M_PI / 180.0;
         float elevationRad = point.Elevation * M_PI / 180.0;
         *iter_azi = static_cast<float>(point.Azimuth);
@@ -240,7 +240,7 @@ namespace aurelion_ros2_bridge {
     this->sensorApi.requestSensorData(sensorId, &sensorData);
 
     // Write data into detections
-    std::vector<Detection> detections;
+    std::vector<FDetection> detections;
     sensorData.getSensorData(&detections);
 
     // Print some data points
@@ -249,7 +249,7 @@ namespace aurelion_ros2_bridge {
       std::cout << "\tRequested radar sensor with ID " << unsigned(sensorId) << " at maneuver time: " << sensorData.getSensorHeader().m_uiTimeStamp << "\xE6s" << std::endl;
       for (size_t i = 0; i < detections.size() && i < this->MAX_SENSOR_RESULT_PRINTOUTS; i++)
       {
-          const Detection& detection = detections[i];
+          const FDetection& detection = detections[i];
           std::cout << "\t\tDetection [" << i << "]: azimuth=" << detection.AzimuthAngle << " elevation=" << detection.ElevationAngle << " radial_distance=" << detection.RadialDistance
                     << " radial_velocity=" << detection.RadialVelocity << std::endl;
       }
@@ -298,7 +298,7 @@ namespace aurelion_ros2_bridge {
     // Convert to Cartesian coordinates
     for (size_t i = 0; i < radarData.width; ++i, ++iter_x, ++iter_y, ++iter_z, ++iter_azi, ++iter_ele, ++iter_dep, ++iter_radVel, ++iter_RCS, ++iter_SNR, ++iter_exProb)
     {
-        const Detection& detection = detections[i];
+        const FDetection& detection = detections[i];
         *iter_azi = static_cast<float>(detection.AzimuthAngle);
         *iter_ele = static_cast<float>(detection.ElevationAngle);
         *iter_dep = static_cast<float>(detection.RadialDistance);
